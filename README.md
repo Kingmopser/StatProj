@@ -13,7 +13,7 @@ Diese Excel Datei wird unsere Haupt Organisationshilfe.
 Das Aufteilen der Aufgaben, inkl. Deadline. Das Planen von Discord Meetings usw. wird alles in der Excel Datei aufbewahrt.
 
 #### Code File: 
-*wichtig!1!1!!: Repo lokal kopieren, wenn wir Code schreiben.
+##### wichtig!1!1!!: Repo lokal kopieren, wenn wir Code schreiben.
 Da wir mit R arbeiten, werden wir ein RMD File nutzen, so können wir einerseits Struktur, mithilfe der Code Blöcke, in den Code reinbringen.
 Zudem können wir Grafiken leichter rendern und bekommen zudem noch ein PDF Output. Alle Pakete mit denen wir arbeiten werden zu Beginn des Files installiert. 
 Ohne richtige Struktur in unserem Code wird es nicht möglich sein, für Außenstehende alles nachvollziehen zu können. Deshalb bitte ich, dass wir jede Funktion, 

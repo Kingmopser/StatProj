@@ -9,3 +9,26 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r setup, echo=FALSE}
+#########Style-Guide##########
+#'Verwende für den Einzug in der Regel zwei Leerzeichen pro Ebene.
+#'
+#'Setze Leerzeichen um Zuweisungen, Operatoren und nach Kommas, aber nicht vor.
+#'
+#'Verwende sinnvolle und beschreibende Namen für Variablen, Funktionen und Objekte.
+#'
+#'Vermeide Einzelbuchstaben oder Abkürzungen in Variablennamen, es sei denn, sie sind allgemein verständlich.
+#'
+#' CamelCase für Variablen 
+#' 
+#' Verwende für den Einzug in der Regel tabular pro Ebene.
+#' 
+#' Verwende den R-Standard # für Einzeilige Kommentare und #' für Dokumentationskommentare.
+#' 
+#' Begrenze die Zeilenlänge auf etwa 80 bis 100 Zeichen, um den Code lesbar zu halten. Verwende Zeilenumbrüche, um lange Zeilen aufzuteilen.
+#' 
+#' Verwende library() zum Laden von Paketen am Anfang deines Skripts oder deiner Funktion.
+#' 
+#' Vermeide das harte Codieren von Zahlen oder Dateipfaden. Verwende stattdessen Variablen oder Konstanten.
+```
+

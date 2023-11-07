@@ -36,6 +36,10 @@ Eine kleine Einleitung ins Thema.
 #### Folien Style Präsentation:
 Das ist der Foliensatz der alle Informationen zum Style und Aufbau der Powerpoint präsentation enthält.
 
+#### Word Dokument:
+In diesem Dokument schreiben wir alle Ideen rein, Gliederungen etc etc.
+
+
 
 
 

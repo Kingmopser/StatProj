@@ -32,3 +32,25 @@ knitr::opts_chunk$set(echo = TRUE)
 #' Vermeide das harte Codieren von Zahlen oder Dateipfaden. Verwende stattdessen Variablen oder Konstanten.
 ```
 
+```{r}
+library(tidyverse)
+library(ggplot2)
+df_long <- Daten %>%
+  pivot_longer(cols = starts_with("KT"),
+               names_to = "Time",
+               values_to = "Temperature")
+
+
+
+df_long <- df_long %>% mutate(Temperature = ifelse(Temperature < 0, NA, Temperature)) 
+
+df_long %>% group_by(Tag) %>% ggplot(aes(x = Time, y = Temperature)) +
+  geom_point() +
+  facet_wrap(~ Tag) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Zeit", y = "Körpertemperatur") +
+  theme_bw()
+```
+
+
+

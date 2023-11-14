@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
 ```
 
 ```{r setup, echo=FALSE}
@@ -35,21 +37,64 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(ggplot2)
-df_long <- Daten %>%
+library(readr)
+Daten <- read_csv("Daten.csv")
+
+df_long <- Daten %>% #changing data from wide to long format
   pivot_longer(cols = starts_with("KT"),
                names_to = "Time",
                values_to = "Temperature")
 
 
+#removing NAs
+df_long <-
+  df_long %>% mutate(Temperature = ifelse(Temperature < 0, NA, Temperature))  %>% mutate(Time = as.numeric(gsub("KT", "", Time))) 
 
-df_long <- df_long %>% mutate(Temperature = ifelse(Temperature < 0, NA, Temperature)) 
-
-df_long %>% group_by(Tag) %>% ggplot(aes(x = Time, y = Temperature)) +
-  geom_point() +
-  facet_wrap(~ Tag) +
+ggplot(avgtemp, aes(x = Time, y = avgtemp, color = as.factor(Tag))) +
+  geom_point(size = 7,alpha = 0.5, shape = 10) +
+  facet_wrap( ~ Tag) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(x = "Zeit", y = "Körpertemperatur") +
+  theme_bw() #+
+  #geom_hline(yintercept = 37.5, color = "red")
+ 
+df_long %>% ggplot(aes(x = Time, y = Temperature, color = as.factor(Tag))) +
+  geom_point() +
+  facet_wrap( ~ Tag) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Zeit", y = "Körpertemperatur") +
+  theme_bw() 
+  #geom_hline(color = "red")
+
+```
+```{r}
+#bodytemps on each day and hour with mean
+avgtemp <- df_long %>% group_by(Time,Tag) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
+
+
+df_long %>% 
+  ggplot(aes(x = Time, y = Temperature)) +
+  geom_point(data = avgtemp, aes(y = avgtemp), size = 7, alpha = 1, shape = "-") +
+  geom_point(alpha = 0.1) +
+  facet_wrap(~ Tag) +
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()
+
+```
+
+```{r}
+#comparison with administered Iloprost
+avgtemp <- df_long %>% group_by(Time,Tag,Iloprost) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
+
+
+df_long %>% ungroup %>%
+  ggplot(aes(x = Time, y = Temperature)) +
+  geom_point(data = avgtemp, aes(y = avgtemp), size = 7, alpha = 1, shape = "-") +
+  geom_point(alpha = 0.1) +
+  facet_grid(cols = vars(Tag), rows = vars(Iloprost))+
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  theme_bw()
+
 ```
 
 

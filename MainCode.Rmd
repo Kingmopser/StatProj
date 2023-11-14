@@ -49,23 +49,17 @@ df_long <- Daten %>% #changing data from wide to long format
 #removing NAs
 df_long <-
   df_long %>% mutate(Temperature = ifelse(Temperature < 0, NA, Temperature))  %>% mutate(Time = as.numeric(gsub("KT", "", Time))) 
+avgtemp <- df_long %>% group_by(Time,Tag,Iloprost) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
 
-ggplot(avgtemp, aes(x = Time, y = avgtemp, color = as.factor(Tag))) +
-  geom_point(size = 7,alpha = 0.5, shape = 10) +
-  facet_wrap( ~ Tag) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  labs(x = "Zeit", y = "Körpertemperatur") +
-  theme_bw() #+
-  #geom_hline(yintercept = 37.5, color = "red")
+
+
  
-df_long %>% ggplot(aes(x = Time, y = Temperature, color = as.factor(Tag))) +
+df_long %>% ggplot(aes(x = Time, y = Temperature)) +
   geom_point() +
   facet_wrap( ~ Tag) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(x = "Zeit", y = "Körpertemperatur") +
   theme_bw() 
-  #geom_hline(color = "red")
-
 ```
 ```{r}
 #bodytemps on each day and hour with mean

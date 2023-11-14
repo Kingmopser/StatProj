@@ -78,18 +78,22 @@ df_long %>%
 
 ```{r}
 #comparison with administered Iloprost
-avgtemp <- df_long %>% group_by(Time,Tag,Iloprost) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
+avgtemp <- df_long %>% group_by(Time,Tag,Sklerodermie) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
 
 
 df_long %>% ungroup %>%
   ggplot(aes(x = Time, y = Temperature)) +
   geom_point(data = avgtemp, aes(y = avgtemp), size = 7, alpha = 1, shape = "-") +
   geom_point(alpha = 0.13) +
-  facet_grid(cols = vars(Tag), rows = vars(Iloprost))+
+  facet_grid(cols = vars(Tag), rows = vars(Sklerodermie))+
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()
 
 ```
 
 
+```{r}
+df_long %>% group_by(Patientennummer) %>% 
+  ggplot() #Test
+```
 

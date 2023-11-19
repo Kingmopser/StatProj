@@ -39,7 +39,7 @@ library(tidyverse)
 library(ggplot2)
 library(readr)
 Daten <- read_csv("Daten.csv")
-
+Daten <- Daten %>% select(-Geburtsdatum)
 df_long <- Daten %>% #changing data from wide to long format
   pivot_longer(cols = starts_with("KT"),
                names_to = "Time",
@@ -79,7 +79,7 @@ df_long %>%
 ```{r}
 #comparison with administered Iloprost
 avgtemp <- df_long %>% group_by(Time,Tag,Sklerodermie) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
-
+avgtemp
 
 df_long %>% ungroup %>%
   ggplot(aes(x = Time, y = Temperature)) +
@@ -88,7 +88,6 @@ df_long %>% ungroup %>%
   facet_grid(cols = vars(Tag), rows = vars(Sklerodermie))+
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()
-
 ```
 
 
@@ -96,4 +95,36 @@ df_long %>% ungroup %>%
 df_long %>% group_by(Patientennummer) %>% 
   ggplot() #Test
 ```
+
+```{r}
+#'Körpertemperatur verlauf bei Patienten die in den letzen 4 Wochen n viele Attacken hatten, 
+#'Fokus auf patienten mit raynaud syndrom und sklerodermie
+df1 <- df_long %>% filter(Raynaud == 0, Sklerodermie == 0) %>% 
+  group_by(Time,Tag, `Anzahl Raynaud Attacken`) %>% 
+  summarise(avgtemp = mean(Temperature, na.rm = TRUE)) %>% drop_na() 
+
+NoAttacks <- df1 %>% filter(`Anzahl Raynaud Attacken` == "0")
+Attacks <- df1 %>% filter(`Anzahl Raynaud Attacken` != "0")
+Attacks
+NoAttacks  %>%
+  ggplot(aes(x = Time, y = Temperature)) + 
+  geom_point(data = NoAttacks, aes(y =NoAttacks$avgtemp ), size = 7, alpha = 1, shape = "-") +
+  facet_grid(cols = vars(Tag), rows = vars(`Anzahl Raynaud Attacken`))+
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  theme_bw()
+
+Attacks %>%
+    ggplot(aes(x = Time, y = Temperature)) + 
+  geom_point(data = Attacks, aes(y =Attacks$avgtemp ), size = 7, alpha = 1, shape = "-") +
+  facet_grid(cols = vars(Tag), rows = vars(`Anzahl Raynaud Attacken`))+
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  theme_bw()
+```
+
+```{r}
+#Körpertemperaturverlauf  Hand, Gesicht, Füße
+
+```
+
+
 

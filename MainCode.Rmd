@@ -63,17 +63,21 @@ df_long %>% ggplot(aes(x = Time, y = Temperature)) +
 ```
 ```{r}
 #bodytemps on each day and hour with mean
-avgtemp <- df_long %>% group_by(Time,Tag) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
+avgtemp <- df_long %>% group_by(Time,Tag,`Anzahl Raynaud Attacken`) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
 
 
 df_long %>% 
   ggplot(aes(x = Time, y = Temperature)) +
   geom_point(data = avgtemp, aes(y = avgtemp), size = 7, alpha = 1, shape = "-") +
   geom_point(alpha = 0.1) +
-  facet_wrap(~ Tag) +
+  facet_grid(cols = vars(Tag), rows = vars(`Anzahl Raynaud Attacken`)) +
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()
 
+avgtemp
+```
+
+```{r}
 ```
 
 ```{r}
@@ -81,20 +85,18 @@ df_long %>%
 avgtemp <- df_long %>% group_by(Time,Tag,Sklerodermie) %>% summarise(avgtemp = mean(Temperature, na.rm = TRUE))
 avgtemp
 
-df_long %>% ungroup %>%
+plotTempRaw <- df_long %>% ungroup %>%
   ggplot(aes(x = Time, y = Temperature)) +
   geom_point(data = avgtemp, aes(y = avgtemp), size = 7, alpha = 1, shape = "-") +
   geom_point(alpha = 0.13) +
   facet_grid(cols = vars(Tag), rows = vars(Sklerodermie))+
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()
+
+avgtemp
 ```
 
 
-```{r}
-df_long %>% group_by(Patientennummer) %>% 
-  ggplot() #Test
-```
 
 ```{r}
 #'Körpertemperatur verlauf bei Patienten die in den letzen 4 Wochen n viele Attacken hatten, 
@@ -108,14 +110,14 @@ Attacks <- df1 %>% filter(`Anzahl Raynaud Attacken` != "0")
 Attacks
 NoAttacks  %>%
   ggplot(aes(x = Time, y = Temperature)) + 
-  geom_point(data = NoAttacks, aes(y =NoAttacks$avgtemp ), size = 7, alpha = 1, shape = "-") +
+  geom_point(data = NoAttacks, aes(y =avgtemp ), size = 7, alpha = 1, shape = "-") +
   facet_grid(cols = vars(Tag), rows = vars(`Anzahl Raynaud Attacken`))+
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()
 
-Attacks %>%
+Attacks %>% ungroup %>%
     ggplot(aes(x = Time, y = Temperature)) + 
-  geom_point(data = Attacks, aes(y =Attacks$avgtemp ), size = 7, alpha = 1, shape = "-") +
+  geom_point(data = Attacks, aes(y =avgtemp ), size = 2, alpha = 0.3, shape = 16) +
   facet_grid(cols = vars(Tag), rows = vars(`Anzahl Raynaud Attacken`))+
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   theme_bw()

@@ -1,6 +1,5 @@
 library(tidyverse)
 Daten <- read_csv("Daten.csv")
-# this code chunk formats all hourly data into long format
 
 
 Daten_longer <- Daten %>% rename("AT 20" = "A 20","AT 22" = "A 22") %>% rename("Notizen" = ...163)%>% 
@@ -16,3 +15,4 @@ Daten_longer <- Daten %>% rename("AT 20" = "A 20","AT 22" = "A 22") %>% rename("
 
 all_bodyparts <- c("TDl", "TDr", "KT", "TPl", "TPR", "TF", "TG", "TN", "TZ")
 Daten_longer_only_bodypart <- Daten_longer %>% filter(bodypart == all_bodyparts) # only bodyparts
+

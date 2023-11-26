@@ -1,0 +1,111 @@
+---
+title: "Phils_Code"
+author: ""
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r setup, echo=FALSE}
+#########Style-Guide##########
+#'Verwende für den Einzug in der Regel zwei Leerzeichen pro Ebene.
+#'
+#'Setze Leerzeichen um Zuweisungen, Operatoren und nach Kommas, aber nicht vor.
+#'
+#'Verwende sinnvolle und beschreibende Namen für Variablen, Funktionen und Objekte.
+#'
+#'Vermeide Einzelbuchstaben oder Abkürzungen in Variablennamen, es sei denn, sie sind allgemein verständlich.
+#'
+#' CamelCase für Variablen 
+#' 
+#' Verwende für den Einzug in der Regel tabular pro Ebene.
+#' 
+#' Verwende den R-Standard # für Einzeilige Kommentare und #' für Dokumentationskommentare.
+#' 
+#' Begrenze die Zeilenlänge auf etwa 80 bis 100 Zeichen, um den Code lesbar zu halten. Verwende Zeilenumbrüche, um lange Zeilen aufzuteilen.
+#' 
+#' Verwende library() zum Laden von Paketen am Anfang deines Skripts oder deiner Funktion.
+#' 
+#' Vermeide das harte Codieren von Zahlen oder Dateipfaden. Verwende stattdessen Variablen oder Konstanten.
+```
+
+```{r}
+library(tidyverse)
+Daten <- read_csv("Daten.csv")
+# this code chunk formats all hourly data into long format
+
+
+Daten_longer <- Daten %>% rename("AT 20" = "A 20","AT 22" = "A 22") %>% rename("Notizen" = ...163)%>% 
+  mutate(across(matches(".*[0-9]+.*"), as.numeric)) %>% # all columns to numeric
+  mutate(across(matches(".*[0-9]+.*"), function(x) {ifelse(x < -50, NA, x)})) %>% # all negative values to NA
+  pivot_longer(
+    cols = matches(".*[0-9]+.*"), # columns to pivot
+    names_to = c("bodypart", "hour"), # new column names, ATTENTION: bodypart contains things like clothing etc.
+    names_pattern = "(.*\\D)(\\d{1,2})$", # pattern to separate the original column names
+    values_to = "temperatur" # new column name for the values
+  ) %>% mutate(hour = as.numeric(hour)) %>%
+  mutate(bodypart = gsub(" ","",bodypart)) # remove spaces in bodypart
+  
+all_bodyparts <- c("TDl", "TDr", "KT", "TPl", "TPR", "TF", "TG", "TN", "TZ")
+Daten_longer_only_bodypart <- Daten_longer %>% filter(bodypart == all_bodyparts) # only bodypart
+```
+
+
+```{r}
+library(patchwork)
+all_plot <- Daten_longer %>% ggplot(aes(x = hour, y = temperatur)) +
+  geom_point(alpha = 0.1) +
+  facet_wrap( ~ bodypart) +
+  theme_bw() +
+  labs(x = "Uhrzeit", y = "Körpertemperatur")
+
+all_plot_with_means <- Daten_longer %>% ggplot(aes(x = hour, y = temperatur)) +
+  geom_point(alpha = 0.1) +
+  facet_wrap( ~ bodypart) +
+  theme_bw() +
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red")
+
+all_plot_with_geom_smooth <- Daten_longer %>% ggplot(aes(x = hour, y = temperatur,group = bodypart)) +
+  geom_point(alpha = 0.1) +
+  facet_wrap( ~ bodypart,scales = "free") +
+  theme_bw() +
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  #stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
+  geom_smooth(method = "loess", se = FALSE)
+
+
+
+all_plot_with_geom_smooth_skl_no <- Daten_longer  %>% ggplot(aes(x = hour, y = temperatur)) +
+  geom_point(alpha = 0.1) +
+  facet_grid(rows = vars(bodypart), cols = vars(Sklerodermie)) +
+  theme_bw() +
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
+  geom_smooth(method = "loess", se = FALSE) 
+  #scale_y_continuous(breaks = seq(0,24,2))
+
+
+all_bodyparts_plot <- Daten_longer_only_bodypart %>% ggplot(aes(x = hour, y = temperatur)) +
+  geom_point(alpha = 0.1) +
+  facet_wrap( ~ bodypart) +
+  theme_bw() +
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
+  geom_smooth(method = "loess", se = FALSE) +
+  scale_y_continuous(breaks = seq(0,24,2))
+
+ggsave("all_bodyparts_plot.pdf", all_bodyparts_plot, width = 20, height = 20, units = "cm")
+ggsave("all_plot_with_geom_smooth_skl_no.pdf", all_plot_with_geom_smooth_skl_no, width = 20, height = 20, units = "cm")
+ggsave("all_plot_with_geom_smooth.pdf", all_plot_with_geom_smooth, width = 20, height = 20, units = "cm")
+ggsave("all_plot_with_means.pdf", all_plot_with_means, width = 20, height = 20, units = "cm")
+ggsave("all_plot.pdf", all_plot, width = 20, height = 20, units = "cm")
+```
+
+
+

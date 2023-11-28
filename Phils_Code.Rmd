@@ -91,20 +91,48 @@ all_plot_with_geom_smooth_skl_no <- Daten_longer  %>% ggplot(aes(x = hour, y = t
   #scale_y_continuous(breaks = seq(0,24,2))
 
 
-all_bodyparts_plot <- Daten_longer_only_bodypart %>% ggplot(aes(x = hour, y = temperatur)) +
+Daten_longer_only_bodypart$`Anzahl Raynaud Attacken` <- factor(Daten_longer_only_bodypart$`Anzahl Raynaud Attacken`,levels = c(0,"<5","<10",">10",">15",">20")) 
+#Daten_longer_only_bodypart <- Daten_longer_only_bodypart %>% drop_na(contains("Anzahl Raynaud"))
+
+
+
+all_bodyparts_by_attacks_pl <- Daten_longer_only_bodypart %>%
+  ggplot(aes(x = hour, y = temperatur)) +
   geom_point(alpha = 0.1) +
-  facet_wrap( ~ bodypart) +
+  #facet_wrap(~ bodypart) +
+  facet_grid(rows = vars(bodypart), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
+  #facet_wrap(~Daten_longer_only_bodypart$"Anzahl Raynaud Attacken") +
   theme_bw() +
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
-  geom_smooth(method = "loess", se = FALSE) 
+  geom_smooth(method = "loess") 
+  
+obs_attacks_bodypart <- Daten_longer_only_bodypart %>%
+  ggplot(aes(x = bodypart)) +
+  geom_bar()+
+  facet_grid(rows = vars(Tag), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
+  theme_bw()
+obs_attacks_bodypart
 
-ggsave("all_bodyparts_plot.pdf", all_bodyparts_plot, width = 20, height = 20, units = "cm")
+all_bodyparts_plot_skl_yes <- Daten_longer_only_bodypart %>%
+  filter(Sklerodermie == 0) %>%
+  ggplot(aes(x = hour, y = temperatur)) +
+  geom_point(alpha = 0.1) +
+  #facet_grid(rows = vars(bodypart), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
+  theme_bw() +
+  labs(x = "Uhrzeit", y = "Körpertemperatur") +
+  stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
+  geom_smooth(method = "loess")   
+  
+#ggsave("all_bodyparts_plot_skl_yes.pdf", all_bodyparts_plot_skl_yes, width = 20, height = 20, units = "cm")
+ggsave("all_bodyparts_by_attacks_pl.pdf", all_bodyparts_by_attacks_pl, width = 20, height = 20, units = "cm")
 ggsave("all_plot_with_geom_smooth_skl_no.pdf", all_plot_with_geom_smooth_skl_no, width = 20, height = 20, units = "cm")
 ggsave("all_plot_with_geom_smooth.pdf", all_plot_with_geom_smooth, width = 20, height = 20, units = "cm")
 ggsave("all_plot_with_means.pdf", all_plot_with_means, width = 20, height = 20, units = "cm")
 ggsave("all_plot.pdf", all_plot, width = 20, height = 20, units = "cm")
 ```
+
+
 
 
 

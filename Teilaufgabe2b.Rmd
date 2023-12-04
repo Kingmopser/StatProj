@@ -36,6 +36,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 library(tidyverse)
 library(ggplot2)
 library(readr)
+library(patchwork)
 Daten <- read_csv("Daten.csv")
 
 
@@ -394,6 +395,27 @@ Daten_Physio_3$Daten..Physiotherapie.in.der.Woche. <- factor(Daten_Physio_3$Date
 ggplot(Daten_Physio_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten..Physiotherapie.in.der.Woche.)+
   geom_bar(stat='identity')+
   facet_grid(.~Daten..Physiotherapie.in.der.Woche., labeller= labeller(Daten..Physiotherapie.in.der.Woche. = panel_labels_Physio)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+```
+
+
+```{r}
+### relative Häufigkeiten
+Daten_Medikamente_Subgruppe_1 <- Daten_Medikamente %>%
+  filter(Daten.Therapie == 1)
+Daten_Medikamente_Subgruppe_0 <- Daten_Medikamente %>%
+  filter(Daten.Therapie == 0)
+
+gp1 <- ggplot(Daten_Medikamente_Subgruppe_0) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count/sum(count)*100, fill="darkorange", alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity') + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten in Prozent") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values = "darkorange")
+
+
+gp2 <- ggplot(Daten_Medikamente_Subgruppe_1) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count/sum(count)*100, fill= "cadetblue", alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity') + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten in Prozent") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values = "cadetblue")
+
+
+
+ggp <- (gp1+gp2)
+ggp
 
 
 

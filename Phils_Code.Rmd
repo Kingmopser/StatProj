@@ -124,7 +124,7 @@ all_bodyparts_plot <- Daten_longer_only_bodypart %>%
   ggplot(aes(x = hour, y = temperatur)) +
   geom_line(aes(group = Patientennummer),alpha = 0.1) +
   geom_point(alpha = 0.1) +
-  facet_grid(rows = vars(bodypart), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
+  facet_grid(rows = vars(bodypart), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken"),scales = "free") +
   theme_bw() +
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   #stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +

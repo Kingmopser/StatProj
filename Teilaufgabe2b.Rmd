@@ -1,0 +1,399 @@
+---
+title: "Teilaufgabe2"
+author: "Julia_Schneider"
+date: "2023-12-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+
+
+library(tidyverse)
+library(ggplot2)
+library(readr)
+Daten <- read_csv("Daten.csv")
+
+
+
+
+Farben_Risiko <- c("0"= "darkorange", "1" = "cadetblue")
+############# Medikation
+Daten_Medikamente <- data.frame (Daten$Therapie, Daten$`Anzahl Raynaud Attacken`)
+Daten_Medikamente <- na.omit(Daten_Medikamente) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten.Therapie) %>%
+  summarise(count=n()) 
+
+Daten_Medikamente$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Medikamente$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Medikamente$Daten.Therapie <- factor(Daten_Medikamente$Daten.Therapie, levels = c("0", "1")) 
+
+panel_labels_Medikamente <- c("0" = "Medikation", "1" = "keine Medikation")
+
+
+ggplot(Daten_Medikamente) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten.Therapie, alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten.Therapie, labeller= labeller(Daten.Therapie = panel_labels_Medikamente)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+
+
+########################## Corona
+Daten_Corona <- data.frame (Daten$`Corona Infektion`, Daten$`Anzahl Raynaud Attacken`)
+Daten_Corona <- na.omit(Daten_Corona) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten..Corona.Infektion.) %>%
+  summarise(count=n()) 
+
+Daten_Corona$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Corona$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Corona$Daten..Corona.Infektion. <- factor(Daten_Corona$Daten..Corona.Infektion., levels = c("0", "1"))
+
+panel_labels_Corona <- c("0" = "Infektion", "1" = "keine Infektion")
+
+ggplot(Daten_Corona) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten..Corona.Infektion., alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten..Corona.Infektion., labeller= labeller(Daten..Corona.Infektion. = panel_labels_Corona)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+########################## Externe Phototherapie
+Daten_Phototherapie <- data.frame (Daten$`ex. Photo.`, Daten$`Anzahl Raynaud Attacken`)
+Daten_Phototherapie <- na.omit(Daten_Phototherapie) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten..ex..Photo..) %>%
+  summarise(count=n()) 
+
+Daten_Phototherapie$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Phototherapie$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Phototherapie$Daten..ex..Photo.. <- factor(Daten_Phototherapie$Daten..ex..Photo.., levels = c("0", "1"))
+
+panel_labels_Phototherapie <- c("0" = "Therapie", "1" = "keine Therapie")
+
+ggplot(Daten_Phototherapie) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten..ex..Photo.., alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten..ex..Photo.., labeller= labeller(Daten..ex..Photo.. = panel_labels_Phototherapie)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+############################ Rauchen
+Daten_Rauchen <- data.frame (Daten$Rauchen, Daten$`Anzahl Raynaud Attacken`)
+
+## hier zusätzlich Entfernung einiger Anmerkungen nach Gruppierung in "0" und "1"
+Daten_Rauchen$Daten.Rauchen <- substr(Daten_Rauchen$Daten.Rauchen, 0, 1)
+Daten_Rauchen <- na.omit(Daten_Rauchen) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten.Rauchen) %>%
+  summarise(count=n()) 
+
+Daten_Rauchen$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Rauchen$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Rauchen$Daten.Rauchen <- factor(Daten_Rauchen$Daten.Rauchen, levels = c("0", "1"))
+
+panel_labels_Rauchen <- c("0" = "Raucher", "1" = "Nichtraucher")
+
+ggplot(Daten_Rauchen) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten.Rauchen, alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten.Rauchen, labeller= labeller(Daten.Rauchen = panel_labels_Rauchen)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+##################### Psychotherapie
+Daten_Psycho <- data.frame (Daten$Psychotherapie, Daten$`Anzahl Raynaud Attacken`)
+
+## hier lediglich Unterscheidung Psychotherapie ja oder nein, keine gesonderte Betrachtung von 2x wöchentlich aufgrund geringer Fallzahl
+Daten_Psycho$Daten.Psychotherapie[Daten_Psycho$Daten.Psychotherapie > 1] <- 1
+
+Daten_Psycho <- na.omit(Daten_Psycho) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten.Psychotherapie) %>%
+  summarise(count=n()) 
+
+Daten_Psycho$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Psycho$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Psycho$Daten.Psychotherapie <- factor(Daten_Psycho$Daten.Psychotherapie, levels = c("0", "1"))
+
+panel_labels_Psycho <- c("0" = "keine Psychotherapie", "1" = "Psychotherapie")
+
+ggplot(Daten_Psycho) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten.Psychotherapie, alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten.Psychotherapie, labeller= labeller(Daten.Psychotherapie = panel_labels_Psycho)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+
+
+################# Sport
+Daten_Sport <- data.frame (Daten$`Sport/w`, Daten$`Anzahl Raynaud Attacken`)
+
+## hier lediglich Unterscheidung Sport und kein Sport, keine Berücksichtigung der Häufigkeit
+Daten_Sport$Daten..Sport.w.[Daten_Sport$Daten..Sport.w. > 1] <- 1
+
+Daten_Sport <- na.omit(Daten_Sport) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten..Sport.w.) %>%
+  summarise(count=n()) 
+
+Daten_Sport$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Sport$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Sport$Daten..Sport.w. <- factor(Daten_Sport$Daten..Sport.w., levels = c("0", "1"))
+
+panel_labels_Sport <- c("0" = "kein Sport", "1" = "Sport")
+
+ggplot(Daten_Sport) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten..Sport.w., alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten..Sport.w., labeller= labeller(Daten..Sport.w. = panel_labels_Sport)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+
+
+################### Physio
+Daten_Physio <- data.frame (Daten$`Physiotherapie in der Woche`, Daten$`Anzahl Raynaud Attacken`)
+
+## hier lediglich Unterscheidung, ob Physiotherapie, keine Berücksichtigung der Häufigkeit
+Daten_Physio$Daten..Physiotherapie.in.der.Woche.[Daten_Physio$Daten..Physiotherapie.in.der.Woche. > 1] <- 1
+
+Daten_Physio <- na.omit(Daten_Physio) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten..Physiotherapie.in.der.Woche.) %>%
+  summarise(count=n()) 
+
+Daten_Physio$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Physio$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Physio$Daten..Physiotherapie.in.der.Woche. <- factor(Daten_Physio$Daten..Physiotherapie.in.der.Woche., levels = c("0", "1"))
+
+panel_labels_Physio <- c("0" = "keine Physiotherapie", "1" = "Physiotherapie")
+
+ggplot(Daten_Physio) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten..Physiotherapie.in.der.Woche., alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten..Physiotherapie.in.der.Woche., labeller= labeller(Daten..Physiotherapie.in.der.Woche. = panel_labels_Physio)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+```
+
+
+```{r}
+Daten <- read_csv("Daten.csv")
+Farben_Risiko <- c("0"= "darkorange", "1" = "cadetblue")
+panel_labels_Rauchen
+panel_labels_Medikamente
+
+#### Rauchen (ohne NA)
+Daten_Rauchen_2 <- data.frame (Daten$Rauchen, Daten$Raynaud)
+Daten_Rauchen_2$Daten.Rauchen <- substr(Daten_Rauchen_2$Daten.Rauchen, 0, 1)
+Daten_Rauchen_2 <- na.omit(Daten_Rauchen_2) %>%
+  group_by(Daten.Raynaud, Daten.Rauchen) %>%
+  summarise(count=n()) 
+
+Daten_Rauchen_2$Daten.Raynaud <- factor(Daten_Rauchen_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Rauchen_2$Daten.Rauchen <- factor(Daten_Rauchen_2$Daten.Rauchen, levels= c("0", "1"))
+
+ggplot(Daten_Rauchen_2) + aes(x= Daten.Raynaud, y=count, fill=Daten.Rauchen)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten.Rauchen, labeller= labeller(Daten.Rauchen = panel_labels_Rauchen)) + xlab ("Raynaud-Syndrom") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+#### Medikamente
+Daten_Medikamente_2 <- data.frame (Daten$Therapie, Daten$Raynaud)
+Daten_Medikamente_2 <- na.omit(Daten_Medikamente_2) %>%
+  group_by(Daten.Raynaud, Daten.Therapie) %>%
+  summarise(count=n()) 
+
+Daten_Medikamente_2$Daten.Raynaud <- factor(Daten_Medikamente_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Medikamente_2$Daten.Therapie <- factor(Daten_Medikamente_2$Daten.Therapie, levels=c("0", "1"))
+
+ggplot(Daten_Medikamente_2) + aes(x= Daten.Raynaud, y=count, fill=Daten.Therapie)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten.Therapie, labeller= labeller(Daten.Therapie = panel_labels_Medikamente)) + xlab ("Raynaud-Syndrom") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)                                                                
+                                        
+## Unterscheidung Gruppen
+
+
+#### externe Phototherapie
+Daten_Phototherapie_2 <- data.frame (Daten$`ex. Photo.`, Daten$Raynaud)
+Daten_Phototherapie_2 <- na.omit(Daten_Phototherapie_2) %>%
+  group_by(Daten.Raynaud, Daten..ex..Photo..) %>%
+  summarise(count=n()) 
+
+Daten_Phototherapie_2$Daten.Raynaud <- factor(Daten_Phototherapie_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Phototherapie_2$Daten..ex..Photo.. <- factor(Daten_Phototherapie_2$Daten..ex..Photo.., levels=c("0", "1"))
+
+ggplot(Daten_Phototherapie_2) + aes(x= Daten.Raynaud, y=count, fill=Daten..ex..Photo..) +
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..ex..Photo.., labeller= labeller(Daten..ex..Photo.. = panel_labels_Phototherapie)) + xlab ("Raynaud") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+#### Corona
+Daten_Corona_2 <- data.frame (Daten$`Corona Infektion`, Daten$Raynaud)
+Daten_Corona_2 <- na.omit(Daten_Corona_2) %>%
+  group_by(Daten.Raynaud, Daten..Corona.Infektion.) %>%
+  summarise(count=n()) 
+
+Daten_Corona_2$Daten.Raynaud <- factor(Daten_Corona_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Corona_2$Daten..Corona.Infektion. <- factor(Daten_Corona_2$Daten..Corona.Infektion., levels=c("0", "1"))
+
+ggplot(Daten_Corona_2) + aes(x= Daten.Raynaud, y=count, fill=Daten..Corona.Infektion.)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..Corona.Infektion., labeller= labeller(Daten..Corona.Infektion. = panel_labels_Corona)) + xlab ("Raynaud") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+## Auswirkungen?
+
+
+#### Psychotherapie
+Daten_Psycho_2 <- data.frame (Daten$Psychotherapie, Daten$Raynaud)
+Daten_Psycho_2$Daten.Psychotherapie[Daten_Psycho_2$Daten.Psychotherapie > 1] <- 1
+Daten_Psycho_2 <- na.omit(Daten_Psycho_2) %>%
+  group_by(Daten.Raynaud, Daten.Psychotherapie) %>%
+  summarise(count=n()) 
+
+Daten_Psycho_2$Daten.Raynaud <- factor(Daten_Psycho_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Psycho_2$Daten.Psychotherapie <- factor(Daten_Psycho_2$Daten.Psychotherapie, levels=c("0", "1"))
+
+ggplot(Daten_Psycho_2) + aes(x= Daten.Raynaud, y=count, fill=Daten.Psychotherapie)+ 
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten.Psychotherapie, labeller= labeller(Daten.Psychotherapie = panel_labels_Psycho))+ xlab ("Raynaud") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+#### Sport
+Daten_Sport_2 <- data.frame (Daten$`Sport/w`, Daten$Raynaud)
+Daten_Sport_2$Daten..Sport.w.[Daten_Sport_2$Daten..Sport.w. > 1] <- 1
+Daten_Sport_2 <- na.omit(Daten_Sport_2) %>%
+  group_by(Daten.Raynaud, Daten..Sport.w.) %>%
+  summarise(count=n()) 
+
+Daten_Sport_2$Daten.Raynaud <- factor(Daten_Sport_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Sport_2$Daten..Sport.w. <- factor(Daten_Sport_2$Daten..Sport.w., levels=c("0", "1"))
+
+ggplot(Daten_Sport_2) + aes(x= Daten.Raynaud, y=count, fill=Daten..Sport.w.)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..Sport.w., labeller= labeller(Daten..Sport.w. = panel_labels_Sport)) + xlab ("Raynaud") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+
+#### Physiotherapie
+Daten_Physio_2 <- data.frame (Daten$`Physiotherapie in der Woche`, Daten$Raynaud)
+Daten_Physio_2$Daten..Physiotherapie.in.der.Woche.[Daten_Physio_2$Daten..Physiotherapie.in.der.Woche. > 1] <- 1
+Daten_Physio_2 <- na.omit(Daten_Physio_2) %>%
+  group_by(Daten.Raynaud, Daten..Physiotherapie.in.der.Woche.) %>%
+  summarise(count=n()) 
+
+Daten_Physio_2$Daten.Raynaud <- factor(Daten_Physio_2$Daten.Raynaud, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Physio_2$Daten..Physiotherapie.in.der.Woche. <- factor(Daten_Physio_2$Daten..Physiotherapie.in.der.Woche., levels=c("0", "1"))
+
+ggplot(Daten_Physio_2) + aes(x= Daten.Raynaud, y=count, fill=Daten..Physiotherapie.in.der.Woche.)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..Physiotherapie.in.der.Woche., labeller= labeller(Daten..Physiotherapie.in.der.Woche. = panel_labels_Physio)) + xlab ("Raynaud") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+```
+
+
+```{r}
+Daten <- read_csv("Daten.csv")
+Farben_Risiko <- c("0"= "darkorange", "1" = "cadetblue")
+panel_labels_Rauchen
+panel_labels_Medikamente
+
+
+#### Rauchen (ohne NA)
+Daten_Rauchen_3 <- data.frame (Daten$Rauchen, Daten$Sklerodermie)
+Daten_Rauchen_3$Daten.Rauchen <- substr(Daten_Rauchen_2$Daten.Rauchen, 0, 1)
+Daten_Rauchen_3 <- na.omit(Daten_Rauchen_3) %>%
+  group_by(Daten.Sklerodermie, Daten.Rauchen) %>%
+  summarise(count=n()) 
+
+Daten_Rauchen_3$Daten.Sklerodermie <- factor(Daten_Rauchen_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Rauchen_3$Daten.Rauchen <- factor(Daten_Rauchen_3$Daten.Rauchen, levels= c("0", "1"))
+
+ggplot(Daten_Rauchen_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten.Rauchen)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten.Rauchen, labeller= labeller(Daten.Rauchen = panel_labels_Rauchen)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+#### Medikamente
+Daten_Medikamente_3 <- data.frame (Daten$Therapie, Daten$Sklerodermie)
+Daten_Medikamente_3 <- na.omit(Daten_Medikamente_3) %>%
+  group_by(Daten.Sklerodermie, Daten.Therapie) %>%
+  summarise(count=n()) 
+
+Daten_Medikamente_3$Daten.Sklerodermie <- factor(Daten_Medikamente_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Medikamente_3$Daten.Therapie <- factor(Daten_Medikamente_3$Daten.Therapie, levels=c("0", "1"))
+
+ggplot(Daten_Medikamente_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten.Therapie)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten.Therapie, labeller= labeller(Daten.Therapie = panel_labels_Medikamente)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)                                                                
+
+## Unterscheidung Gruppen
+
+
+#### externe Phototherapie
+Daten_Phototherapie_3 <- data.frame (Daten$`ex. Photo.`, Daten$Sklerodermie)
+Daten_Phototherapie_3 <- na.omit(Daten_Phototherapie_3) %>%
+  group_by(Daten.Sklerodermie, Daten..ex..Photo..) %>%
+  summarise(count=n()) 
+
+Daten_Phototherapie_3$Daten.Sklerodermie <- factor(Daten_Phototherapie_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Phototherapie_3$Daten..ex..Photo.. <- factor(Daten_Phototherapie_3$Daten..ex..Photo.., levels=c("0", "1"))
+
+ggplot(Daten_Phototherapie_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten..ex..Photo..) +
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..ex..Photo.., labeller= labeller(Daten..ex..Photo.. = panel_labels_Phototherapie)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+#### Corona
+Daten_Corona_3 <- data.frame (Daten$`Corona Infektion`, Daten$Sklerodermie)
+Daten_Corona_3 <- na.omit(Daten_Corona_3) %>%
+  group_by(Daten.Sklerodermie, Daten..Corona.Infektion.) %>%
+  summarise(count=n()) 
+
+Daten_Corona_3$Daten.Sklerodermie <- factor(Daten_Corona_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Corona_3$Daten..Corona.Infektion. <- factor(Daten_Corona_3$Daten..Corona.Infektion., levels=c("0", "1"))
+
+ggplot(Daten_Corona_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten..Corona.Infektion.)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..Corona.Infektion., labeller= labeller(Daten..Corona.Infektion. = panel_labels_Corona)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+## Auswirkungen?
+
+
+#### Psychotherapie
+Daten_Psycho_3 <- data.frame (Daten$Psychotherapie, Daten$Sklerodermie)
+Daten_Psycho_3$Daten.Psychotherapie[Daten_Psycho_3$Daten.Psychotherapie > 1] <- 1
+Daten_Psycho_3 <- na.omit(Daten_Psycho_3) %>%
+  group_by(Daten.Sklerodermie, Daten.Psychotherapie) %>%
+  summarise(count=n()) 
+
+Daten_Psycho_3$Daten.Sklerodermie <- factor(Daten_Psycho_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Psycho_3$Daten.Psychotherapie <- factor(Daten_Psycho_3$Daten.Psychotherapie, levels=c("0", "1"))
+
+ggplot(Daten_Psycho_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten.Psychotherapie)+ 
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten.Psychotherapie, labeller= labeller(Daten.Psychotherapie = panel_labels_Psycho))+ xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+#### Sport
+Daten_Sport_3 <- data.frame (Daten$`Sport/w`, Daten$Sklerodermie)
+Daten_Sport_3$Daten..Sport.w.[Daten_Sport_3$Daten..Sport.w. > 1] <- 1
+Daten_Sport_3 <- na.omit(Daten_Sport_3) %>%
+  group_by(Daten.Sklerodermie, Daten..Sport.w.) %>%
+  summarise(count=n()) 
+
+Daten_Sport_3$Daten.Sklerodermie <- factor(Daten_Sport_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Sport_3$Daten..Sport.w. <- factor(Daten_Sport_3$Daten..Sport.w., levels=c("0", "1"))
+
+ggplot(Daten_Sport_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten..Sport.w.)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..Sport.w., labeller= labeller(Daten..Sport.w. = panel_labels_Sport)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+
+#### Physiotherapie
+Daten_Physio_3 <- data.frame (Daten$`Physiotherapie in der Woche`, Daten$Sklerodermie)
+Daten_Physio_3$Daten..Physiotherapie.in.der.Woche.[Daten_Physio_3$Daten..Physiotherapie.in.der.Woche. > 1] <- 1
+Daten_Physio_3 <- na.omit(Daten_Physio_3) %>%
+  group_by(Daten.Sklerodermie, Daten..Physiotherapie.in.der.Woche.) %>%
+  summarise(count=n()) 
+
+Daten_Physio_3$Daten.Sklerodermie <- factor(Daten_Physio_3$Daten.Sklerodermie, levels=c("0", "1"), labels = c("ja", "nein"))
+Daten_Physio_3$Daten..Physiotherapie.in.der.Woche. <- factor(Daten_Physio_3$Daten..Physiotherapie.in.der.Woche., levels=c("0", "1"))
+
+ggplot(Daten_Physio_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten..Physiotherapie.in.der.Woche.)+
+  geom_bar(stat='identity')+
+  facet_grid(.~Daten..Physiotherapie.in.der.Woche., labeller= labeller(Daten..Physiotherapie.in.der.Woche. = panel_labels_Physio)) + xlab ("Sklerodermie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko)
+
+
+

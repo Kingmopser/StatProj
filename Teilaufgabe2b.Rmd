@@ -399,7 +399,7 @@ ggplot(Daten_Physio_3) + aes(x= Daten.Sklerodermie, y=count, fill=Daten..Physiot
 
 
 ```{r}
-### relative Häufigkeiten
+### relative Häufigkeiten für Anzahl (einmaliger Test, würde auf grouped bar plots ausweichen ### und ergänzend absolute Häufigkeiten Anzahl Raynaud zeigen)
 Daten_Medikamente_Subgruppe_1 <- Daten_Medikamente %>%
   filter(Daten.Therapie == 1)
 Daten_Medikamente_Subgruppe_0 <- Daten_Medikamente %>%
@@ -414,8 +414,192 @@ gp2 <- ggplot(Daten_Medikamente_Subgruppe_1) + aes(x= Daten..Anzahl.Raynaud.Atta
 
 
 
-ggp <- (gp1+gp2)
+ggp <- (gp1/gp2)
 ggp
+```
 
+
+```{r}
+### Variante: grouped barplot für Raynaud
+
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(patchwork)
+
+Daten <- read_csv("Daten.csv")
+
+
+Farben_Risiko <- c("0"= "darkorange", "1" = "cadetblue")
+
+
+#### Rauchen (ohne NA)
+Daten_Rauchen_2 <- data.frame (Daten$Rauchen, Daten$Raynaud)
+Daten_Rauchen_2$Daten.Rauchen <- substr(Daten_Rauchen_2$Daten.Rauchen, 0, 1)
+Daten_Rauchen_2 <- na.omit(Daten_Rauchen_2) %>%
+  group_by(Daten.Raynaud, Daten.Rauchen) %>%
+  summarise(count=n()) 
+
+Daten_Rauchen_2$Daten.Raynaud <- factor(Daten_Rauchen_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Rauchen_2$Daten.Rauchen <- factor(Daten_Rauchen_2$Daten.Rauchen, levels= c("0", "1"), labels = c("ja", "nein"))
+
+ggplot(Daten_Rauchen_2) + aes(x= Daten.Rauchen, y=count, fill=Daten.Raynaud)+
+  geom_bar(stat='identity')+ xlab ("Rauchen") + ylab ("Anzahl Patienten") + theme_bw()  + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+  
+
+
+#### Medikamente
+Daten_Medikamente_2 <- data.frame (Daten$Therapie, Daten$Raynaud)
+Daten_Medikamente_2 <- na.omit(Daten_Medikamente_2) %>%
+  group_by(Daten.Raynaud, Daten.Therapie) %>%
+  summarise(count=n()) 
+
+Daten_Medikamente_2$Daten.Raynaud <- factor(Daten_Medikamente_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Medikamente_2$Daten.Therapie <- factor(Daten_Medikamente_2$Daten.Therapie, levels=c("0", "1"), labels = c("ja", "nein"))
+
+
+ggplot(Daten_Medikamente_2,aes(x = Daten.Therapie, y =count, fill = Daten.Raynaud)) + 
+  geom_bar(stat = "identity") + xlab ("Medikation") + ylab ("Anzahl Patienten") + theme_bw()  + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+
+
+## Unterscheidung Gruppen
+
+
+#### externe Phototherapie
+Daten_Phototherapie_2 <- data.frame (Daten$`ex. Photo.`, Daten$Raynaud)
+Daten_Phototherapie_2 <- na.omit(Daten_Phototherapie_2) %>%
+  group_by(Daten.Raynaud, Daten..ex..Photo..) %>%
+  summarise(count=n()) 
+
+Daten_Phototherapie_2$Daten.Raynaud <- factor(Daten_Phototherapie_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Phototherapie_2$Daten..ex..Photo.. <- factor(Daten_Phototherapie_2$Daten..ex..Photo.., levels=c("0", "1"), labels=c("ja", "nein"))
+
+
+ggplot(Daten_Phototherapie_2,aes(x = Daten..ex..Photo.., y =count, fill = Daten.Raynaud)) + 
+  geom_bar(stat = "identity") + xlab ("Externe Phototherapie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+
+
+
+#### Corona
+Daten_Corona_2 <- data.frame (Daten$`Corona Infektion`, Daten$Raynaud)
+Daten_Corona_2 <- na.omit(Daten_Corona_2) %>%
+  group_by(Daten.Raynaud, Daten..Corona.Infektion.) %>%
+  summarise(count=n()) 
+
+Daten_Corona_2$Daten.Raynaud <- factor(Daten_Corona_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Corona_2$Daten..Corona.Infektion. <- factor(Daten_Corona_2$Daten..Corona.Infektion., levels=c("0", "1"), labels = c("ja", "nein"))
+
+ggplot(Daten_Corona_2) + aes(x= Daten..Corona.Infektion., y=count, fill= Daten.Raynaud) +
+  geom_bar(stat = "identity") + xlab ("Coronainfektion") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+  
+
+## Auswirkungen?
+
+
+#### Psychotherapie
+Daten_Psycho_2 <- data.frame (Daten$Psychotherapie, Daten$Raynaud)
+Daten_Psycho_2$Daten.Psychotherapie[Daten_Psycho_2$Daten.Psychotherapie > 1] <- 1
+Daten_Psycho_2 <- na.omit(Daten_Psycho_2) %>%
+  group_by(Daten.Raynaud, Daten.Psychotherapie) %>%
+  summarise(count=n()) 
+
+Daten_Psycho_2$Daten.Raynaud <- factor(Daten_Psycho_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Psycho_2$Daten.Psychotherapie <- factor(Daten_Psycho_2$Daten.Psychotherapie, levels=c("0", "1"), labels = c("nein", "ja"))
+
+ggplot(Daten_Psycho_2) + aes(x= Daten.Psychotherapie, y=count, fill=Daten.Raynaud)+ 
+  geom_bar(stat = "identity") + xlab ("Psychotherapie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+  
+
+#### Sport
+Daten_Sport_2 <- data.frame (Daten$`Sport/w`, Daten$Raynaud)
+Daten_Sport_2$Daten..Sport.w.[Daten_Sport_2$Daten..Sport.w. > 1] <- 1
+Daten_Sport_2 <- na.omit(Daten_Sport_2) %>%
+  group_by(Daten.Raynaud, Daten..Sport.w.) %>%
+  summarise(count=n()) 
+
+Daten_Sport_2$Daten.Raynaud <- factor(Daten_Sport_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Sport_2$Daten..Sport.w. <- factor(Daten_Sport_2$Daten..Sport.w., levels=c("0", "1"), labels = c("nein", "ja"))
+
+ggplot(Daten_Sport_2) + aes(x= Daten..Sport.w., y=count, fill=Daten.Raynaud)+
+  geom_bar(stat = "identity") + xlab ("Sport") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+
+
+
+#### Physiotherapie
+Daten_Physio_2 <- data.frame (Daten$`Physiotherapie in der Woche`, Daten$Raynaud)
+Daten_Physio_2$Daten..Physiotherapie.in.der.Woche.[Daten_Physio_2$Daten..Physiotherapie.in.der.Woche. > 1] <- 1
+Daten_Physio_2 <- na.omit(Daten_Physio_2) %>%
+  group_by(Daten.Raynaud, Daten..Physiotherapie.in.der.Woche.) %>%
+  summarise(count=n()) 
+
+Daten_Physio_2$Daten.Raynaud <- factor(Daten_Physio_2$Daten.Raynaud, levels=c("0", "1"))
+Daten_Physio_2$Daten..Physiotherapie.in.der.Woche. <- factor(Daten_Physio_2$Daten..Physiotherapie.in.der.Woche., levels=c("0", "1"), labels = c("nein", "ja"))
+
+ggplot(Daten_Physio_2) + aes(x= Daten..Physiotherapie.in.der.Woche., y=count, fill=Daten.Raynaud)+
+  geom_bar(stat = "identity") + xlab ("Physiotherapie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud", labels = c("ja", "nein"))
+```
+
+
+```{r}
+##### Details Therapie
+
+
+#### Anzahl Attacken
+############# Medikation
+Daten_Medikamente <- data.frame (Daten$Therapie, Daten$`Anzahl Raynaud Attacken`)
+Daten_Medikamente <- na.omit(Daten_Medikamente) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten.Therapie) %>%
+  summarise(count=n()) 
+
+Daten_Medikamente$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Medikamente$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Medikamente$Daten.Therapie <- factor(Daten_Medikamente$Daten.Therapie, levels = c("0", "1")) 
+
+panel_labels_Medikamente <- c("0" = "Medikation", "1" = "keine Medikation")
+
+
+ggplot(Daten_Medikamente) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten.Therapie, alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten.Therapie, labeller= labeller(Daten.Therapie = panel_labels_Medikamente)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+
+#### Medikamente detailliert
+Daten_Medikamente_Detail <- data.frame (Daten$Therapie, Daten$Iloprost, Daten$Betablocker, Daten$Nitrate, Daten$CA, Daten$MTX, Daten$Mycophenolatmofetil, Daten$Azathioprin, Daten$Glukokortikoide, Daten$Bosentan, Daten$`Anzahl Raynaud Attacken`)
+Daten_Medikamente_Detail <- na.omit(Daten_Medikamente_Detail) %>%
+  mutate(Daten.Immunsuppression = "1")
+
+Daten_Medikamente_Detail$Daten.Immunsuppression[Daten_Medikamente_Detail$Daten.MTX == "0" | Daten_Medikamente_Detail$Daten.Mycophenolatmofetil == "0" | Daten_Medikamente_Detail$Daten.Azathioprin == "0" | Daten_Medikamente_Detail$Daten.Glukokortikoide == "0"] <- 0
+
+
+
+#### ß-Blocker
+Daten_Betablocker <- data.frame (Daten$Betablocker, Daten$`Anzahl Raynaud Attacken`)
+Daten_Betablocker <- na.omit(Daten_Betablocker) %>%
+  group_by(Daten..Anzahl.Raynaud.Attacken., Daten.Betablocker) %>%
+  summarise(count=n()) 
+
+Daten_Betablocker$Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Betablocker$Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Betablocker$Daten.Betablocker <- factor(Daten_Betablocker$Daten.Betablocker, levels = c("0", "1")) 
+
+panel_labels_Betablocker <- c("0" = "Betablocker", "1" = "keine Betablocker")
+
+
+ggplot(Daten_Betablocker) + aes(x= Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten.Betablocker, alpha=Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten.Betablocker, labeller= labeller(Daten.Betablocker = panel_labels_Betablocker)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
+
+
+#### Immunsuppression (weniger Werte, NA bei Medikamenten vorher entfernt, ändern?)
+Daten_Immunsuppression <- data.frame(Daten_Medikamente_Detail$Daten.Immunsuppression, Daten_Medikamente_Detail$Daten..Anzahl.Raynaud.Attacken.)  %>%
+  group_by(Daten_Medikamente_Detail.Daten..Anzahl.Raynaud.Attacken., Daten_Medikamente_Detail.Daten.Immunsuppression) %>%
+  summarise(count=n()) 
+
+
+
+Daten_Immunsuppression$Daten_Medikamente_Detail.Daten..Anzahl.Raynaud.Attacken. <- factor(Daten_Immunsuppression$Daten_Medikamente_Detail.Daten..Anzahl.Raynaud.Attacken., ordered = TRUE, levels = c("0", "<5", "<10", ">10", ">15", ">20"))
+Daten_Immunsuppression$Daten_Medikamente_Detail.Daten.Immunsuppression <- factor(Daten_Immunsuppression$Daten_Medikamente_Detail.Daten.Immunsuppression, levels = c("0", "1")) 
+
+panel_labels_Immunsuppression <- c("0" = "Immunsuppression", "1" = "keine Immunsuppression")
+
+
+ggplot(Daten_Immunsuppression) + aes(x= Daten_Medikamente_Detail.Daten..Anzahl.Raynaud.Attacken., y=count, fill=Daten_Medikamente_Detail.Daten.Immunsuppression, alpha=Daten_Medikamente_Detail.Daten..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat='identity')+ facet_grid(.~Daten_Medikamente_Detail.Daten.Immunsuppression, labeller= labeller(Daten_Medikamente_Detail.Daten.Immunsuppression = panel_labels_Immunsuppression)) + xlab ("Anzahl Raynaud-Attacken") + ylab ("Anzahl Patienten") + theme_bw() + scale_alpha_manual(values=c(0.25, 0.4, 0.55, 0.7, 0.85, 1)) + scale_fill_manual(values=Farben_Risiko) 
 
 

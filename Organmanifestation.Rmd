@@ -1,0 +1,81 @@
+---
+title: "Teilaufgabe 2b Stat Proj"
+author: "David Nikue"
+output: html_document
+date: "2023-11-14" 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readr)
+library(stringr)
+
+
+```
+
+
+```{r}
+Daten <- read_csv("Daten.csv")
+```
+
+
+```{r}
+#sek Organmanifestation
+
+labeller_sek <- c("0" = "Manifestation ja", "1" = "Manifestation nein") 
+
+
+sek_plot <- Daten %>% group_by(`Anzahl Raynaud Attacken`, `sek. Organmanifestation`) %>% summarise(count = n()) %>% na.omit() %>% ggplot(aes(x = factor(`Anzahl Raynaud Attacken`, levels = c("NA","0", "<5", "<10", ">10", ">15", ">20")), y = count )) + geom_col() + theme_bw() + facet_grid(~`sek. Organmanifestation`, labeller = labeller(`sek. Organmanifestation` = labeller_sek)) + xlab("Anzahl Raynaud Attacken") + ylab("Anzahl sek. Organmanifestation")
+
+ggsave("sek_plot.pdf", sek_plot, width = 20, height = 20, units = "cm")
+
+```
+
+```{r}
+#lok Herz plot
+herz_plot <- Daten %>% group_by(`Anzahl Raynaud Attacken`,Lok_Herz) %>% summarise(count = n()) %>% na.omit() %>% ggplot(aes(x = factor(`Anzahl Raynaud Attacken`, levels = c("NA","0", "<5", "<10", ">10", ">15", ">20")), y = count)) + xlab(" Anzahl Raynaud Attacken")+ ylab("Anzahl Lokalisation Herz") + geom_col() + theme_bw() + facet_grid(~Lok_Herz, labeller = labeller(Lok_Herz = labeller_sek)) 
+
+ggsave("herz_plot.pdf", herz_plot, height = 20, width = 20, units = "cm")
+```
+
+```{r}
+#Lok Lunge plot
+
+Daten <- Daten %>% mutate(Lok_Lunge = ifelse(Lok_Lunge < 0, NA, Lok_Lunge))
+
+lunge_plot <- Daten %>% group_by(`Anzahl Raynaud Attacken`, Lok_Lunge) %>% summarise(count = n()) %>% na.omit(Lok_Lunge) %>%  ggplot(aes(x = factor(`Anzahl Raynaud Attacken`, levels = c("NA","0", "<5", "<10", ">10", ">15", ">20")), y = count)) + xlab(" Anzahl Raynaud Attacken")+ ylab("Anzahl Lokalisation Lunge") + geom_col() + theme_bw() + facet_grid(~ Lok_Lunge, labeller = labeller(Lok_Lunge = labeller_sek))
+ggsave("lunge_plot.pdf", lunge_plot, height = 20, width = 20, units = "cm")
+```
+
+```{r}
+#Lok_Ösophagus plot
+oesophagus_plot <- Daten %>% group_by(`Anzahl Raynaud Attacken`, Lok_Ösophagus) %>% summarise(count = n())%>% na.omit() %>% ggplot(aes(x = factor(`Anzahl Raynaud Attacken`, levels = c("NA","0", "<5", "<10", ">10", ">15", ">20")), y = count))+ xlab(" Anzahl Raynaud Attacken")+ ylab(" Anzahl Lokalisation Ösophagus") + geom_col() + theme_bw() + facet_grid(~ Lok_Ösophagus, labeller = labeller(Lok_Ösophagus = labeller_sek))
+
+
+ggsave("oesophagus_plot.pdf", oesophagus_plot, width = 20, height = 20, units = "cm")
+```
+
+```{r}
+#Lok Niere Plot
+
+Daten %>% group_by(`Anzahl Raynaud Attacken`, Lok_Niere) %>% summarise(count = n())%>% na.omit() %>% ggplot(aes(x = factor(`Anzahl Raynaud Attacken`, levels = c("NA","0", "<5", "<10", ">10", ">15", ">20")), y = count)) + xlab(" Anzahl Raynaud Attacken")+ ylab(" Anzahl Lokalisation Niere") + geom_col() + theme_bw() + facet_grid(~Lok_Niere, labeller = labeller(Lok_Niere = labeller_sek))
+```
+
+
+```{r}
+# Lok Leber Plot
+Daten %>% group_by(`Anzahl Raynaud Attacken`, Lok_Leber) %>% summarise(count = n())%>% na.omit() %>% ggplot(aes(x = factor(`Anzahl Raynaud Attacken`, levels = c("NA","0", "<5", "<10", ">10", ">15", ">20")), y = count)) + xlab(" Anzahl Raynaud Attacken")+ ylab("Anzahl Lokalisation Leber") + geom_col() + theme_bw() + facet_grid(~Lok_Leber, labeller = labeller(Lok_Leber = labeller_sek))
+```
+
+
+
+
+```{r}
+
+```
+
+

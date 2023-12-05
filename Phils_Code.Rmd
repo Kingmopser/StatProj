@@ -52,11 +52,7 @@ Daten_longer <- Daten %>% rename("AT 20" = "A 20","AT 22" = "A 22") %>% rename("
   
 all_bodyparts <- c("TDl", "TDr", "KT", "Tpl", "Tpr", "TF", "TG", "TN", "TZ")
 Daten_longer_only_bodypart <- Daten_longer %>% filter(bodypart == all_bodyparts) # only bodypart
-```
 
-
-```{r}
-library(patchwork)
 Daten_longer_only_bodypart$`Anzahl Raynaud Attacken` <- factor(Daten_longer_only_bodypart$`Anzahl Raynaud Attacken`,levels = c(0,"<5","<10",">10",">15",">20")) 
 Daten_longer_only_bodypart <- Daten_longer_only_bodypart %>% drop_na(contains("Anzahl Raynaud"))
 
@@ -68,7 +64,7 @@ all_bodyparts_by_attacks <-
     all_bodyparts_by_attacks,
     bodypart = ifelse(
       bodypart == "TN" | bodypart == "TG",
-      "Mittlere Temperatur Gesicht",
+      "DG",
       bodypart
     ))
 all_bodyparts_by_attacks <-
@@ -76,7 +72,7 @@ all_bodyparts_by_attacks <-
     all_bodyparts_by_attacks,
     bodypart = ifelse(
       bodypart == "Tpl" | bodypart == "Tpr",
-      "Mittlere Temperatur Hände",
+      "DH",
       bodypart
     ))
 all_bodyparts_by_attacks <-
@@ -84,7 +80,7 @@ all_bodyparts_by_attacks <-
     all_bodyparts_by_attacks,
     bodypart = ifelse(
       bodypart == "TZ" | bodypart == "TF" | bodypart == "TDl" | bodypart == "TDr",
-      "Mittlere Temperatur Füße",
+      "DF",
       bodypart
     ))
 all_bodyparts_by_attacks <-
@@ -99,7 +95,10 @@ all_bodyparts_by_attacks <-
 all_bodyparts_by_attacks$`Anzahl Raynaud Attacken` <-
   factor(all_bodyparts_by_attacks$`Anzahl Raynaud Attacken`,
          levels = c("0 Raynaud Attacken", "mehr als 0 Raynaud Attacken"))
+```
 
+
+```{r}
 all_bodyparts_by_attacks_pl <- all_bodyparts_by_attacks %>%
   ggplot(aes(x = hour, y = temperatur)) +
   geom_point(alpha = 0.08,size = 5) +
@@ -112,13 +111,6 @@ all_bodyparts_by_attacks_pl <- all_bodyparts_by_attacks %>%
   #stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
   geom_smooth(method = "loess",se = FALSE,color = "blue",size = 1) 
   
-obs_attacks_bodypart <- Daten_longer_only_bodypart %>%
-  ggplot(aes(x = bodypart)) +
-  geom_bar()+
-  facet_grid(rows = vars(Tag), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
-  theme_bw()
-obs_attacks_bodypart
-
 all_bodyparts_plot <- Daten_longer_only_bodypart %>%
   #filter(Sklerodermie == 0) %>%
   ggplot(aes(x = hour, y = temperatur)) +
@@ -131,7 +123,6 @@ all_bodyparts_plot <- Daten_longer_only_bodypart %>%
   geom_smooth(method = "loess",se = FALSE) + 
   ggtitle("Anzahl Raynaud Attacken in den letzten 4 Wochen:")
 
-
   
 ggsave("all_bodyparts_plot.pdf", all_bodyparts_plot, width = 20, height = 20, units = "cm")
 ggsave("all_bodyparts_by_attacks_pl.pdf", all_bodyparts_by_attacks_pl, width = 20, height = 20, units = "cm")
@@ -139,5 +130,14 @@ ggsave("all_bodyparts_by_attacks_pl.pdf", all_bodyparts_by_attacks_pl, width = 2
 
 
 
+```{r}
+obs_attacks_bodypart <- Daten_longer_only_bodypart %>%
+  ggplot(aes(x = bodypart)) +
+  geom_bar()+
+  facet_grid(rows = vars(Tag), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
+  theme_bw()
+#obs_attacks_bodypart
+
+```
 
 

@@ -1,0 +1,209 @@
+---
+title: "Teilaufgabe2b_Endversion"
+author: "Julia_Schneider"
+date: "2023-12-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(patchwork)
+Daten <- read_csv("Daten.csv")
+
+Daten22 <- Daten %>%
+  group_by(Patientennummer, Untersuchung) %>%
+  arrange_all() %>%
+  filter(row_number()==1)
+
+
+
+Farben_Risiko <- c("0"= "cadetblue", "1" = "darkorange")
+
+### Sport
+Daten_Sport_222 <- data.frame (Daten22$`Sport/w`, Daten22$Raynaud, Daten22$`Anzahl Raynaud Attacken`) %>%
+  filter(Daten22.Raynaud==0)
+Daten_Sport_222$Daten22..Sport.w.[Daten_Sport_222$Daten22..Sport.w. > 1] <- 1
+Daten_Sport_222$Daten22..Anzahl.Raynaud.Attacken.[Daten_Sport_222$Daten22..Anzahl.Raynaud.Attacken. != "0"] <- 1
+
+Daten_Sport_222 <- na.omit(Daten_Sport_222) %>%
+  select(Daten22..Sport.w., Daten22..Anzahl.Raynaud.Attacken.) %>%
+  group_by(Daten22..Anzahl.Raynaud.Attacken., Daten22..Sport.w.) %>%
+  summarise(count=n()) 
+
+Daten_Sport_222$Daten22..Anzahl.Raynaud.Attacken. <- factor(Daten_Sport_222$Daten22..Anzahl.Raynaud.Attacken., levels=c("0", "1"))
+Daten_Sport_222$Daten22..Sport.w. <- factor(Daten_Sport_222$Daten22..Sport.w., levels=c("0", "1"), labels = c("nein", "ja"))
+
+Plot_Sport_absolute_Häufigkeit2 <- ggplot(Daten_Sport_222) + aes(x= Daten22..Sport.w., y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity") + xlab ("Sport") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Sport_relative_Häufigkeit2 <- ggplot(Daten_Sport_222) + aes(x= Daten22..Sport.w., y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity", position="fill") + xlab ("Sport") + ylab ("Prozentualer Anteil Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Sport_gesamt2 <- Plot_Sport_absolute_Häufigkeit2/Plot_Sport_relative_Häufigkeit2
+Plot_Sport_gesamt2
+
+
+#### Physiotherapie
+
+Daten_Physio_222 <- data.frame (Daten22$`Physiotherapie in der Woche`, Daten22$Raynaud, Daten22$`Anzahl Raynaud Attacken`) %>%
+  filter(Daten22.Raynaud==0)
+Daten_Physio_222$Daten22..Physiotherapie.in.der.Woche.[Daten_Physio_222$Daten22..Physiotherapie.in.der.Woche. > 1] <- 1
+Daten_Physio_222$Daten22..Anzahl.Raynaud.Attacken.[Daten_Physio_222$Daten22..Anzahl.Raynaud.Attacken. != "0"] <- 1
+
+Daten_Physio_222 <- na.omit(Daten_Physio_222) %>%
+  select(Daten22..Physiotherapie.in.der.Woche., Daten22..Anzahl.Raynaud.Attacken.) %>%
+  group_by(Daten22..Anzahl.Raynaud.Attacken., Daten22..Physiotherapie.in.der.Woche.) %>%
+  summarise(count=n()) 
+
+Daten_Physio_222$Daten22..Anzahl.Raynaud.Attacken. <- factor(Daten_Physio_222$Daten22..Anzahl.Raynaud.Attacken., levels=c("0", "1"))
+Daten_Physio_222$Daten22..Physiotherapie.in.der.Woche. <- factor(Daten_Physio_222$Daten22..Physiotherapie.in.der.Woche., levels=c("0", "1"), labels = c("nein", "ja"))
+
+Plot_Physio_absolute_Häufigkeit2 <- ggplot(Daten_Physio_222) + aes(x= Daten22..Physiotherapie.in.der.Woche., y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity") + xlab ("Physiotherapie") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Physio_relative_Häufigkeit2 <- ggplot(Daten_Physio_222) + aes(x= Daten22..Physiotherapie.in.der.Woche., y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity", position="fill") + xlab ("Physiotherapie") + ylab ("Prozentualer Anteil Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Physio_gesamt2 <- Plot_Physio_absolute_Häufigkeit2/Plot_Physio_relative_Häufigkeit2
+Plot_Physio_gesamt2
+
+
+
+
+#### Medikation
+
+
+Daten_Medikamente_222 <- data.frame (Daten22$Therapie, Daten22$Raynaud, Daten22$`Anzahl Raynaud Attacken`) %>%
+  filter(Daten22.Raynaud==0)
+Daten_Medikamente_222$Daten22..Anzahl.Raynaud.Attacken.[Daten_Medikamente_222$Daten22..Anzahl.Raynaud.Attacken. != "0"] <- 1
+
+
+Daten_Medikamente_222 <- na.omit(Daten_Medikamente_222) %>%
+  select(Daten22.Therapie, Daten22..Anzahl.Raynaud.Attacken.) %>%
+  group_by(Daten22..Anzahl.Raynaud.Attacken., Daten22.Therapie) %>%
+  summarise(count=n()) 
+
+Daten_Medikamente_222$Daten22..Anzahl.Raynaud.Attacken. <- factor(Daten_Medikamente_222$Daten22..Anzahl.Raynaud.Attacken., levels=c("0", "1"))
+Daten_Medikamente_222$Daten22.Therapie <- factor(Daten_Medikamente_222$Daten22.Therapie, levels=c("1", "0"), labels = c("nein", "ja"))
+                                                 
+                                                 
+Plot_Medikamente_absolute_Häufigkeit2 <- ggplot(Daten_Medikamente_222) + aes(x= Daten22.Therapie, y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity") + xlab ("Medikation") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Medikamente_relative_Häufigkeit2 <- ggplot(Daten_Medikamente_222) + aes(x= Daten22.Therapie, y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity", position="fill") + xlab ("Medikation") + ylab ("Prozentualer Anteil Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Medikamente_gesamt2 <- Plot_Medikamente_absolute_Häufigkeit2/Plot_Medikamente_relative_Häufigkeit2
+Plot_Medikamente_gesamt2
+
+
+##### Subgruppen Medikamente
+
+
+Daten_Medikamente_Detail_222 <- data.frame (Daten22$Raynaud, Daten22$Iloprost, Daten22$Betablocker, Daten22$Nitrate, Daten22$CA, Daten22$MTX, Daten22$Mycophenolatmofetil, Daten22$Azathioprin, Daten22$Glukokortikoide, Daten22$Bosentan, Daten22$`Anzahl Raynaud Attacken`)
+Daten_Medikamente_Detail_222 <- na.omit(Daten_Medikamente_Detail_222) %>%
+  mutate(Daten22.Immunsuppression = "1") %>%
+  mutate(Daten22.Gefäßerweiterung = "1")
+
+Daten_Medikamente_Detail_222$Daten22.Immunsuppression[Daten_Medikamente_Detail_222$Daten22.MTX == "0" | Daten_Medikamente_Detail_222$Daten22.Mycophenolatmofetil == "0" | Daten_Medikamente_Detail_222$Daten22.Azathioprin == "0" | Daten_Medikamente_Detail_222$Daten22.Glukokortikoide == "0"] <- 0
+Daten_Medikamente_Detail_222$Daten22.Gefäßerweiterung[Daten_Medikamente_Detail_222$Daten22.Iloprost == "0" | Daten_Medikamente_Detail_222$Daten22.Nitrate == "0" | Daten_Medikamente_Detail_222$Daten22.CA == "0" | Daten_Medikamente_Detail_222$Daten22.Bosentan =="0"] <- 0
+
+Daten_Medikamente_Detail_222 <- Daten_Medikamente_Detail_222 %>%
+  filter(Daten22.Raynaud==0)
+Daten_Medikamente_Detail_222$Daten22..Anzahl.Raynaud.Attacken.[Daten_Medikamente_Detail_222$Daten22..Anzahl.Raynaud.Attacken. != "0"] <- 1
+
+### Definition der Tabellen
+Daten_Immunsuppression_222 <- Daten_Medikamente_Detail_222
+Daten_Gefäßerweiterung_222 <- Daten_Medikamente_Detail_222
+
+Daten_Immunsuppression_222 <- na.omit(Daten_Medikamente_Detail_222) %>%
+  select(Daten22.Immunsuppression, Daten22..Anzahl.Raynaud.Attacken.) %>%
+  group_by(Daten22..Anzahl.Raynaud.Attacken., Daten22.Immunsuppression) %>%
+  summarise(count=n()) 
+
+
+Daten_Gefäßerweiterung_222 <- na.omit(Daten_Medikamente_Detail_222) %>%
+  select(Daten22.Gefäßerweiterung, Daten22..Anzahl.Raynaud.Attacken.) %>%
+  group_by(Daten22..Anzahl.Raynaud.Attacken., Daten22.Gefäßerweiterung) %>%
+  summarise(count=n()) 
+
+
+
+## Immunsuppression Rest
+
+Daten_Immunsuppression_222$Daten22..Anzahl.Raynaud.Attacken. <- factor(Daten_Immunsuppression_222$Daten22..Anzahl.Raynaud.Attacken., levels=c("0", "1"))
+Daten_Immunsuppression_222$Daten22.Immunsuppression <- factor(Daten_Immunsuppression_222$Daten22.Immunsuppression, levels=c("1", "0"), labels = c("nein", "ja"))
+
+
+Plot_Immunsuppression_absolute_Häufigkeit2 <- ggplot(Daten_Immunsuppression_222) + aes(x= Daten22.Immunsuppression, y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity") + xlab ("Immunsuppression") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Immunsuppression_relative_Häufigkeit2 <- ggplot(Daten_Immunsuppression_222) + aes(x= Daten22.Immunsuppression, y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity", position="fill") + xlab ("Immunsuppression") + ylab ("Prozentualer Anteil Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Immunsuppression_gesamt2 <- Plot_Immunsuppression_absolute_Häufigkeit2/Plot_Immunsuppression_relative_Häufigkeit2
+Plot_Immunsuppression_gesamt2
+
+
+## Gefäßerweiterung Rest
+
+Daten_Gefäßerweiterung_222$Daten22..Anzahl.Raynaud.Attacken. <- factor(Daten_Gefäßerweiterung_222$Daten22..Anzahl.Raynaud.Attacken., levels=c("0", "1"))
+Daten_Gefäßerweiterung_222$Daten22.Gefäßerweiterung <- factor(Daten_Gefäßerweiterung_222$Daten22.Gefäßerweiterung, levels=c("1", "0"), labels = c("nein", "ja"))
+
+
+Plot_Gefäßerweiterung_absolute_Häufigkeit2 <- ggplot(Daten_Gefäßerweiterung_222) + aes(x= Daten22.Gefäßerweiterung, y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity") + xlab ("Gefäßerweiterung") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Gefäßerweiterung_relative_Häufigkeit2 <- ggplot(Daten_Gefäßerweiterung_222) + aes(x= Daten22.Gefäßerweiterung, y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity", position="fill") + xlab ("Gefäßerweiterung") + ylab ("Prozentualer Anteil Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Gefäßerweiterung_gesamt2 <- Plot_Gefäßerweiterung_absolute_Häufigkeit2/Plot_Gefäßerweiterung_relative_Häufigkeit2
+Plot_Gefäßerweiterung_gesamt2
+
+
+
+### save als pdf
+
+
+ggsave("plot_Medikamente2.pdf", Plot_Medikamente_gesamt2, width = 20, height = 20, units="cm")
+ggsave("plot_Physio2.pdf", Plot_Physio_gesamt2, width = 20, height = 20, units="cm")
+ggsave("plot_Sport2.pdf", Plot_Sport_gesamt2, width = 20, height = 20, units="cm")
+ggsave("plot_Immunsuppression2.pdf", Plot_Immunsuppression_gesamt2, width = 20, height = 20, units="cm" )
+ggsave("plot_Gefäßerweiterung2.pdf", Plot_Gefäßerweiterung_gesamt2, width = 20, height = 20, units="cm" )
+
+
+```
+
+
+
+
+
+

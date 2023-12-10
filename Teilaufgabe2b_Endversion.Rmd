@@ -190,6 +190,32 @@ Plot_Gefäßerweiterung_gesamt2
 
 
 
+### Corona
+Daten_Corona_222 <- data.frame (Daten22$`Corona Infektion`, Daten22$Raynaud, Daten22$`Anzahl Raynaud Attacken`) %>%
+  filter(Daten22.Raynaud==0)
+
+Daten_Corona_222$Daten22..Anzahl.Raynaud.Attacken.[Daten_Corona_222$Daten22..Anzahl.Raynaud.Attacken. != "0"] <- 1
+
+Daten_Corona_222 <- na.omit(Daten_Corona_222) %>%
+  select(Daten22..Anzahl.Raynaud.Attacken., Daten22..Corona.Infektion.) %>%
+  group_by(Daten22..Anzahl.Raynaud.Attacken., Daten22..Corona.Infektion.) %>%
+  summarise(count=n()) 
+
+Daten_Corona_222$Daten22..Anzahl.Raynaud.Attacken. <- factor(Daten_Corona_222$Daten22..Anzahl.Raynaud.Attacken., levels=c("0", "1"))
+Daten_Corona_222$Daten22..Corona.Infektion. <- factor(Daten_Corona_222$Daten22..Corona.Infektion., levels=c("1", "0"), labels = c("nein", "ja"))
+
+Plot_Corona_absolute_Häufigkeit2 <- ggplot(Daten_Corona_222) + aes(x= Daten22..Corona.Infektion., y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity") + xlab ("Corona") + ylab ("Anzahl Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Corona_relative_Häufigkeit2 <- ggplot(Daten_Corona_222) + aes(x= Daten22..Corona.Infektion., y=count, fill=Daten22..Anzahl.Raynaud.Attacken.)+
+  geom_bar(stat = "identity", position="fill") + xlab ("Corona") + ylab ("Prozentualer Anteil Patienten") + theme_bw() + scale_fill_manual(values=Farben_Risiko, name = "Raynaud-Attacken", labels = c("nein", "ja"))
+
+Plot_Corona_gesamt2 <- Plot_Corona_absolute_Häufigkeit2/Plot_Corona_relative_Häufigkeit2
+Plot_Corona_gesamt2
+
+
+
+
 ### save als pdf
 
 
@@ -198,7 +224,7 @@ ggsave("plot_Physio2.pdf", Plot_Physio_gesamt2, width = 20, height = 20, units="
 ggsave("plot_Sport2.pdf", Plot_Sport_gesamt2, width = 20, height = 20, units="cm")
 ggsave("plot_Immunsuppression2.pdf", Plot_Immunsuppression_gesamt2, width = 20, height = 20, units="cm" )
 ggsave("plot_Gefäßerweiterung2.pdf", Plot_Gefäßerweiterung_gesamt2, width = 20, height = 20, units="cm" )
-
+ggsave("plot_Corona2.pdf", Plot_Corona_gesamt2, width = 20, height = 20, units="cm" )
 
 ```
 

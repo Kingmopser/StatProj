@@ -53,10 +53,10 @@ Daten_longer <- Daten %>% rename("AT 20" = "A 20","AT 22" = "A 22") %>% rename("
 all_bodyparts <- c("TDl", "TDr", "KT", "Tpl", "Tpr", "TF", "TG", "TN", "TZ")
 Daten_longer_only_bodypart <- Daten_longer %>% filter(bodypart == all_bodyparts) # only bodypart
 
-Daten_longer_only_bodypart$`Anzahl Raynaud Attacken` <- factor(Daten_longer_only_bodypart$`Anzahl Raynaud Attacken`,levels = c(0,"<5","<10",">10",">15",">20")) 
+Daten_longer_only_bodypart$`Anzahl Raynaud Attacken` <- factor(Daten_longer_only_bodypart$`Anzahl Raynaud Attacken`,levels = c("0","<5","<10",">10",">15",">20"))
 Daten_longer_only_bodypart <- Daten_longer_only_bodypart %>% drop_na(contains("Anzahl Raynaud"))
 
-all_bodyparts_by_attacks <- Daten_longer_only_bodypart %>% filter(Sklerodermie == 0,Raynaud == 0,bodypart != "KT")
+all_bodyparts_by_attacks <- Daten_longer_only_bodypart %>% filter(bodypart != "KT",Raynaud == 0)
 
 
 all_bodyparts_by_attacks <-
@@ -83,7 +83,7 @@ all_bodyparts_by_attacks <-
       "DF",
       bodypart
     ))
-all_bodyparts_by_attacks <-
+all_bodyparts_by_attacks <- all_bodyparts_by_attacks %>%
   mutate(
     all_bodyparts_by_attacks,
     `Anzahl Raynaud Attacken` = ifelse(
@@ -95,49 +95,97 @@ all_bodyparts_by_attacks <-
 all_bodyparts_by_attacks$`Anzahl Raynaud Attacken` <-
   factor(all_bodyparts_by_attacks$`Anzahl Raynaud Attacken`,
          levels = c("0 Raynaud Attacken", "mehr als 0 Raynaud Attacken"))
+
+
+Daten_longer_only_bodypart <- Daten_longer_only_bodypart %>%
+  mutate(
+    `Anzahl Raynaud Attacken` = ifelse(
+      `Anzahl Raynaud Attacken` == ">15" | `Anzahl Raynaud Attacken` == ">20",
+      ">15",
+     `Anzahl Raynaud Attacken`
+    ))
+
+
+
+Daten_longer_only_bodypart$`Anzahl Raynaud Attacken` <- factor(Daten_longer_only_bodypart$`Anzahl Raynaud Attacken`,levels = c(1,2,3,4,">15"), labels = c("0","1-4","5-9","10-15","15+"))
+
+
+Daten_longer_only_bodypart$bodypart <- factor(Daten_longer_only_bodypart$bodypart,levels = c("KT","TF","TZ","TG","TN","Tpl","TDl","TDr","Tpr"))
 ```
 
 
 ```{r}
 all_bodyparts_by_attacks_pl <- all_bodyparts_by_attacks %>%
   ggplot(aes(x = hour, y = temperatur)) +
-  geom_point(alpha = 0.08,size = 5) +
-  #geom_line(aes(group = Patientennummer),alpha = 0.1) +
-  #facet_wrap(~ bodypart) +
-  facet_grid(rows = vars(bodypart), cols = vars(all_bodyparts_by_attacks$"Anzahl Raynaud Attacken"),scales = "free") +
-  #facet_wrap(~Daten_longer_only_bodypart$"Anzahl Raynaud Attacken") +
+  geom_point(alpha = 0.1, size = 5) +
+  facet_grid(
+    rows = vars(bodypart),
+    cols = vars(`Anzahl Raynaud Attacken`),
+    scales = "free"
+  ) +
   theme_bw() +
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   #stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
-  geom_smooth(method = "loess",se = FALSE,color = "blue",size = 1) 
-  
-all_bodyparts_plot <- Daten_longer_only_bodypart %>%
-  #filter(Sklerodermie == 0) %>%
+  geom_smooth(
+    method = "loess",
+    se = FALSE,
+    color = "blue",
+    size = 1
+  )
+
+
+
+all_bodyparts_plot <-
+  Daten_longer_only_bodypart  %>% filter(Raynaud == 0, bodypart != "Tpr", bodypart != "TDr") %>% 
   ggplot(aes(x = hour, y = temperatur)) +
-  geom_line(aes(group = Patientennummer),alpha = 0.1) +
-  geom_point(alpha = 0.1) +
-  facet_grid(rows = vars(bodypart), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken"),scales = "free") +
+  geom_line(aes(group = Patientennummer), alpha = 0.2) +
+  geom_point(alpha = 0.2) +
+  facet_grid(
+    rows = vars(bodypart),
+    cols = vars(`Anzahl Raynaud Attacken`),
+    scales = "free"
+  ) +
   theme_bw() +
   labs(x = "Uhrzeit", y = "Körpertemperatur") +
   #stat_summary(fun = mean, geom = "point", shape = 1, size = 3, color = "red") +
-  geom_smooth(method = "loess",se = FALSE) + 
+  geom_smooth(method = "loess", se = FALSE) +
   ggtitle("Anzahl Raynaud Attacken in den letzten 4 Wochen:")
 
-  
-ggsave("all_bodyparts_plot.pdf", all_bodyparts_plot, width = 20, height = 20, units = "cm")
-ggsave("all_bodyparts_by_attacks_pl.pdf", all_bodyparts_by_attacks_pl, width = 20, height = 20, units = "cm")
+
+label.obs <- c("Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5", "Tag 6")
+names(label.obs) <- c(1:6)
+Daten_Verteilung <- Daten_longer_only_bodypart %>%
+  ggplot(aes(x = hour)) +
+  geom_bar() +
+  facet_wrap(~Tag, labeller = labeller(Tag = label.obs),ncol = 6) +
+  theme_bw() +
+  ggtitle("Verteilung der Daten") +
+  xlab("Uhrzeit") +
+  ylab("Anzahl der Temperatur Messungen")
+
+ggsave(
+  "all_bodyparts_plot.pdf",
+  all_bodyparts_plot,
+  width = 20,
+  height = 20,
+  units = "cm"
+)
+ggsave(
+  "all_bodyparts_by_attacks_pl.pdf",
+  all_bodyparts_by_attacks_pl,
+  width = 20,
+  height = 20,
+  units = "cm"
+)
+ggsave(
+  "Daten_Verteilung.pdf",
+  Daten_Verteilung,
+  width = 25,
+  height = 10,
+  units = "cm"
+)
 ```
 
 
-
-```{r}
-obs_attacks_bodypart <- Daten_longer_only_bodypart %>%
-  ggplot(aes(x = bodypart)) +
-  geom_bar()+
-  facet_grid(rows = vars(Tag), cols = vars(Daten_longer_only_bodypart$"Anzahl Raynaud Attacken")) +
-  theme_bw()
-#obs_attacks_bodypart
-
-```
 
 

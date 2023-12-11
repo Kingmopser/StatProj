@@ -40,18 +40,19 @@ Daten$Anzahl.Raynaud.Attacken <- sapply(Daten$Anzahl.Raynaud.Attacken, kategoris
 
 
 ```{r}
+Farben_Risiko <- c("Manifestation ja" = "chartreuse4", "Manifestation nein" = "darkmagenta")
+```
+
+
+```{r}
 #sek plot
-
-
-#erstmal nach sek. Organmanifestation trennen
-
 
 
 #Den Graphen plotten
 Daten$sek..Organmanifestation <- factor(Daten$sek..Organmanifestation, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
 
 sek2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, sek..Organmanifestation) %>%
@@ -80,8 +81,6 @@ sek2_plot
 Daten$Lok_Herz <- factor(Daten$Lok_Herz, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
-
 herz2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Herz) %>%
   summarise(anzahl = n()) %>%
@@ -107,7 +106,6 @@ herz2_plot
 Daten$Lok_Lunge <- factor(Daten$Lok_Lunge, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
 
 lunge2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Lunge) %>%
@@ -134,8 +132,6 @@ lunge2_plot
 
 Daten$Lok_Bewegungsapparat <- factor(Daten$Lok_Bewegungsapparat, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
-
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
 
 
 bewegung2_plot <- Daten %>%
@@ -164,9 +160,6 @@ bewegung2_plot
 Daten$Lok_Ösophagus <- factor(Daten$Lok_Ösophagus, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
-
-
 oesophagus2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Ösophagus) %>%
   summarise(anzahl = n()) %>%
@@ -191,7 +184,6 @@ oesophagus2_plot
 Daten$Lok_Niere <- factor(Daten$Lok_Niere, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
 
 
 niere2_plot <- Daten %>%
@@ -214,9 +206,6 @@ niere2_plot
 Daten$Lok_Leber <- factor(Daten$Lok_Leber, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
-Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
-
-
 leber2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Leber) %>%
   summarise(anzahl = n()) %>%
@@ -234,7 +223,12 @@ leber2_plot
 ```{r}
 herz_lunge_plot <- (lunge2_plot/herz2_plot)
 
+
+
+
 herz_lunge_plot
+
+ggsave("herzlunge2.pdf", herz_lunge_plot, width = 20 , height = 20, units = "cm")
 ```
 
 
@@ -244,5 +238,8 @@ oeso_bewegung_plot <-(oesophagus2_plot/bewegung2_plot)
 
 
 oeso_bewegung_plot
+
+
+ggsave("oeso_bewegung2.pdf", oeso_bewegung_plot, width = 20 , height = 20, units = "cm")
 ```
 

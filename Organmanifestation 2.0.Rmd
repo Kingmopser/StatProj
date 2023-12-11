@@ -1,0 +1,248 @@
+---
+title: "Organmanifestatiion 2.0"
+output: html_document
+author: David Nikue
+date: "2023-12-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(patchwork)
+```
+
+
+```{r}
+Daten <- read.csv("Daten.csv")
+```
+
+```{r}
+
+ 
+kategorisiere_attacken_neu <- function(Anzahl.Raynaud.Attacken) {
+  ifelse(Anzahl.Raynaud.Attacken == "0", "0",
+    ifelse(Anzahl.Raynaud.Attacken == "<5", "1-4",
+      ifelse(Anzahl.Raynaud.Attacken == "<10", "5-9",
+        ifelse(Anzahl.Raynaud.Attacken == ">10", "10-15",
+          ifelse(Anzahl.Raynaud.Attacken == ">15", "16-20",
+            ifelse(Anzahl.Raynaud.Attacken == ">20", "21+", NA))))))
+
+}
+  
+  
+Daten$Anzahl.Raynaud.Attacken <- sapply(Daten$Anzahl.Raynaud.Attacken, kategorisiere_attacken_neu)
+
+```
+
+
+```{r}
+#sek plot
+
+
+#erstmal nach sek. Organmanifestation trennen
+
+
+
+#Den Graphen plotten
+Daten$sek..Organmanifestation <- factor(Daten$sek..Organmanifestation, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+sek2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, sek..Organmanifestation) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = sek..Organmanifestation)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "sek. Organmanifestation")
+
+
+ggsave("sek2.pdf", sek2_plot,  width = 20, height = 20, units = "cm")
+sek2_plot
+
+```
+
+
+
+
+
+```{r}
+#Herz Lokalisation
+
+
+
+Daten$Lok_Herz <- factor(Daten$Lok_Herz, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+herz2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, Lok_Herz) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Herz)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Herz")
+
+
+
+ggsave("herz2.pdf", herz2_plot,  width = 20, height = 20, units = "cm")
+herz2_plot
+
+```
+
+
+
+```{r}
+# Lungenplot
+
+
+Daten$Lok_Lunge <- factor(Daten$Lok_Lunge, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+lunge2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, Lok_Lunge) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Lunge)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Lunge")
+
+
+ggsave("lunge2.pdf", oesophagus2_plot,  width = 20, height = 20, units = "cm")
+
+lunge2_plot
+```
+
+
+
+
+```{r}
+#Bewegungsapparat
+
+
+
+Daten$Lok_Bewegungsapparat <- factor(Daten$Lok_Bewegungsapparat, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+
+bewegung2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, Lok_Bewegungsapparat) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Bewegungsapparat)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Bewegungsapparat")
+
+
+ggsave("bewegung2.pdf", bewegung2_plot,  width = 20, height = 20, units = "cm")
+
+bewegung2_plot
+```
+
+
+
+
+```{r}
+#ösophagus
+
+
+
+Daten$Lok_Ösophagus <- factor(Daten$Lok_Ösophagus, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+
+oesophagus2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, Lok_Ösophagus) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Ösophagus)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Oesophagus")
+
+
+ggsave("oesophagus2.pdf", oesophagus2_plot,  width = 20, height = 20, units = "cm")
+
+oesophagus2_plot
+
+```
+
+
+```{r}
+#Niere Plot
+
+
+Daten$Lok_Niere <- factor(Daten$Lok_Niere, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+
+niere2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, Lok_Niere) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Niere)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko)
+
+
+niere2_plot
+
+```
+
+```{r}
+
+#Leber Plot
+Daten$Lok_Leber <- factor(Daten$Lok_Leber, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+
+
+Farben_Risiko <- c("Manifestation ja" = "darkorange", "Manifestation nein" = "cadetblue")
+
+
+leber2_plot <- Daten %>%
+  group_by(Anzahl.Raynaud.Attacken, Lok_Leber) %>%
+  summarise(anzahl = n()) %>%
+  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
+  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Leber)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  theme_bw() + scale_fill_manual(values = Farben_Risiko)
+
+
+leber2_plot
+```
+
+
+```{r}
+herz_lunge_plot <- (lunge2_plot/herz2_plot)
+
+herz_lunge_plot
+```
+
+
+
+```{r}
+oeso_bewegung_plot <-(oesophagus2_plot/bewegung2_plot)
+
+
+oeso_bewegung_plot
+```
+

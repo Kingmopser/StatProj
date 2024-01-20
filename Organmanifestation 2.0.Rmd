@@ -1,8 +1,10 @@
 ---
 title: "Organmanifestatiion 2.0"
-output: html_document
-author: David Nikue
+author: "David Nikue"
 date: "2023-12-10"
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -65,7 +67,7 @@ Farben_Risiko <- c("Manifestation ja" = "chartreuse4", "Manifestation nein" = "d
 
 sek2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, sek..Organmanifestation) %>%
-  summarise(anzahl = n()) %>%
+  summarise(anzahl = n(), .groups = "drop_last") %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = sek..Organmanifestation)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -78,7 +80,7 @@ sek2_plot
 
 
 ```{r}
-ggsave("sek2.pdf", sek2_plot, width = 25, height = 20, units = "cm")
+ggsave("sek2.pdf", sek2_plot, width = 40, height = 20, units = "cm")
 ```
 
 
@@ -90,7 +92,7 @@ ggsave("sek2.pdf", sek2_plot, width = 25, height = 20, units = "cm")
 
 herz2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Herz) %>%
-  summarise(anzahl = n()) %>%
+  summarise(anzahl = n(), .groups = "drop_last") %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Herz)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -118,7 +120,7 @@ Daten_Lunge <-  Daten[!(row.names(Daten) %in% c("12","13")),]
 
 lunge2_plot <- Daten_Lunge %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Lunge) %>%
-  summarise(anzahl = n()) %>%
+  summarise(anzahl = n(), .groups = "drop_last") %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Lunge)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -136,7 +138,7 @@ lunge2_plot
 
 bewegung2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Bewegungsapparat) %>%
-  summarise(anzahl = n()) %>%
+  summarise(anzahl = n(), .groups = "drop_last") %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Bewegungsapparat)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -154,7 +156,7 @@ bewegung2_plot
 
 oesophagus2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Ösophagus) %>%
-  summarise(anzahl = n()) %>%
+  summarise(anzahl = n(), .groups = "drop_last") %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Ösophagus)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -178,7 +180,7 @@ herz_lunge_plot <- (lunge2_plot | herz2_plot)
 
 herz_lunge_plot
 
-ggsave("herzlunge2.pdf", herz_lunge_plot, width = 25 , height = 20, units = "cm")
+ggsave("herzlunge2.pdf", herz_lunge_plot, width = 40 , height = 20, units = "cm")
 ```
 
 
@@ -192,6 +194,6 @@ oeso_bewegung_plot <-(oesophagus2_plot | bewegung2_plot)
 oeso_bewegung_plot
 
 
-ggsave("oeso_bewegung2.pdf", oeso_bewegung_plot, width = 25 , height = 20, units = "cm")
+ggsave("oeso_bewegung3.pdf", oeso_bewegung_plot, width = 40 , height = 20, units = "cm")
 ```
 

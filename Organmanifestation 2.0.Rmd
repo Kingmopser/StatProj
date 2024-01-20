@@ -21,7 +21,7 @@ Daten <- read.csv("Daten.csv")
 ```
 
 ```{r}
-
+#Kategorie der Anzahl der Raynaud Attacken der letzten vier Wochen umbennenen
  
 kategorisiere_attacken_neu <- function(Anzahl.Raynaud.Attacken) {
   ifelse(Anzahl.Raynaud.Attacken == "0", "0",
@@ -40,18 +40,27 @@ Daten$Anzahl.Raynaud.Attacken <- sapply(Daten$Anzahl.Raynaud.Attacken, kategoris
 
 
 ```{r}
-Farben_Risiko <- c("Manifestation ja" = "chartreuse4", "Manifestation nein" = "darkmagenta")
+#Die Daten der Spalten der Organmanifestationen umändern
+
+Daten$sek..Organmanifestation <- factor(Daten$sek..Organmanifestation, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+Daten$Lok_Herz <- factor(Daten$Lok_Herz, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+Daten$Lok_Lunge <- factor(Daten$Lok_Lunge, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+Daten$Lok_Bewegungsapparat <- factor(Daten$Lok_Bewegungsapparat, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+Daten$Lok_Ösophagus <- factor(Daten$Lok_Ösophagus, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 ```
 
 
 ```{r}
-#sek plot
+#Farben für die plots
+
+Farben_Risiko <- c("Manifestation ja" = "chartreuse4", "Manifestation nein" = "darkmagenta")
+```
 
 
-#Den Graphen plotten
-Daten$sek..Organmanifestation <- factor(Daten$sek..Organmanifestation, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
+```{r}
+#Allgemeine sekundäre plot
 
 
 sek2_plot <- Daten %>%
@@ -59,26 +68,24 @@ sek2_plot <- Daten %>%
   summarise(anzahl = n()) %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = sek..Organmanifestation)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Relative Häufigkeiten") +
   theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "sek. Organmanifestation")
 
-
-ggsave("sek2.pdf", sek2_plot,  width = 20, height = 20, units = "cm")
 sek2_plot
 
 ```
 
 
+```{r}
+ggsave("sek2.pdf", sek2_plot, width = 25, height = 20, units = "cm")
+```
 
 
 
 ```{r}
-#Herz Lokalisation
+#Plot für die Lokalisation am Herzen
 
-
-
-Daten$Lok_Herz <- factor(Daten$Lok_Herz, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
 
 
 herz2_plot <- Daten %>%
@@ -86,38 +93,37 @@ herz2_plot <- Daten %>%
   summarise(anzahl = n()) %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Herz)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Relative Häufigkeiten") +
   theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Herz")
 
 
-
-ggsave("herz2.pdf", herz2_plot,  width = 20, height = 20, units = "cm")
 herz2_plot
 
 ```
 
 
 
+
+
 ```{r}
-# Lungenplot
+#Hier werden die Reihe 12 und 13 entfernt, da sie bei der Spalte "Lok_Lunge" nur NA besitzen.
+
+Daten_Lunge <-  Daten[!(row.names(Daten) %in% c("12","13")),]
+```
 
 
-Daten$Lok_Lunge <- factor(Daten$Lok_Lunge, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
+```{r}
+#Plot für die Lokalisation an der Lunge
 
-
-
-lunge2_plot <- Daten %>%
+lunge2_plot <- Daten_Lunge %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Lunge) %>%
   summarise(anzahl = n()) %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Lunge)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Relative Häufigkeiten") +
   theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Lunge")
-
-
-ggsave("lunge2.pdf", oesophagus2_plot,  width = 20, height = 20, units = "cm")
 
 lunge2_plot
 ```
@@ -126,120 +132,66 @@ lunge2_plot
 
 
 ```{r}
-#Bewegungsapparat
-
-
-
-Daten$Lok_Bewegungsapparat <- factor(Daten$Lok_Bewegungsapparat, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
-
-
+#Plot für die Lokalisation des Bewegungsapparats
 
 bewegung2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Bewegungsapparat) %>%
   summarise(anzahl = n()) %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Bewegungsapparat)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Relative Häufigkeiten") +
   theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Bewegungsapparat")
 
 
-ggsave("bewegung2.pdf", bewegung2_plot,  width = 20, height = 20, units = "cm")
 
 bewegung2_plot
 ```
 
 
-
-
 ```{r}
-#ösophagus
-
-
-
-Daten$Lok_Ösophagus <- factor(Daten$Lok_Ösophagus, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
-
+#Plot für die Lokalisation des Ösophagus
 
 oesophagus2_plot <- Daten %>%
   group_by(Anzahl.Raynaud.Attacken, Lok_Ösophagus) %>%
   summarise(anzahl = n()) %>%
   mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
   ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Ösophagus)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(x = "Anzahl der Raynaud Attacken", y = "Relative Häufigkeiten") +
   theme_bw() + scale_fill_manual(values = Farben_Risiko, name = "Lokalisation Oesophagus")
 
-
-ggsave("oesophagus2.pdf", oesophagus2_plot,  width = 20, height = 20, units = "cm")
 
 oesophagus2_plot
 
 ```
 
 
-```{r}
-#Niere Plot
-
-
-Daten$Lok_Niere <- factor(Daten$Lok_Niere, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
-
-
-
-
-niere2_plot <- Daten %>%
-  group_by(Anzahl.Raynaud.Attacken, Lok_Niere) %>%
-  summarise(anzahl = n()) %>%
-  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
-  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Niere)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
-  theme_bw() + scale_fill_manual(values = Farben_Risiko)
-
-
-niere2_plot
-
-```
 
 ```{r}
+#Herz und Lunge in einer gemeinsamen Grafik
 
-#Leber Plot
-Daten$Lok_Leber <- factor(Daten$Lok_Leber, levels = c("0", "1"),labels = c("Manifestation ja", "Manifestation nein"))
-
-
-leber2_plot <- Daten %>%
-  group_by(Anzahl.Raynaud.Attacken, Lok_Leber) %>%
-  summarise(anzahl = n()) %>%
-  mutate(rel_haeufigkeit = anzahl / sum(anzahl)) %>%na.omit() %>%
-  ggplot(aes(x = factor(Anzahl.Raynaud.Attacken, levels = c("0", "1-4", "5-9", "10-15","16-20","21+")), y = rel_haeufigkeit, fill = Lok_Leber)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(x = "Anzahl der Raynaud Attacken", y = "Prozentualer Anteil") +
-  theme_bw() + scale_fill_manual(values = Farben_Risiko)
-
-
-leber2_plot
-```
-
-
-```{r}
-herz_lunge_plot <- (lunge2_plot/herz2_plot)
+herz_lunge_plot <- (lunge2_plot | herz2_plot)
 
 
 
 
 herz_lunge_plot
 
-ggsave("herzlunge2.pdf", herz_lunge_plot, width = 20 , height = 20, units = "cm")
+ggsave("herzlunge2.pdf", herz_lunge_plot, width = 25 , height = 20, units = "cm")
 ```
 
 
 
 ```{r}
-oeso_bewegung_plot <-(oesophagus2_plot/bewegung2_plot)
+#Ösophagus und Bewegungsapparat in einer gemeinsamen Grafik
+
+oeso_bewegung_plot <-(oesophagus2_plot | bewegung2_plot)
 
 
 oeso_bewegung_plot
 
 
-ggsave("oeso_bewegung2.pdf", oeso_bewegung_plot, width = 20 , height = 20, units = "cm")
+ggsave("oeso_bewegung2.pdf", oeso_bewegung_plot, width = 25 , height = 20, units = "cm")
 ```
 

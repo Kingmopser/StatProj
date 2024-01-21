@@ -53,7 +53,8 @@ In diesem Dokument schreiben wir alle Ideen rein, Gliederungen etc etc.
 ##### Code/Daten: Enthält die Code Files + CSV Datei 
 
 
-##### How to Code ausführen: 
+### How to Code ausführen: 
+
 Alle 3 R  bzw. Rmd Files ausführen. 
 
 Ggplot und Tidyverse sollten vorher Installiert sein mithilfe von install.packages(“…“)

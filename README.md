@@ -46,11 +46,16 @@ In diesem Dokument schreiben wir alle Ideen rein, Gliederungen etc etc.
 # README
 ## Statistisches Projekt: Examination of peripheral blood flow in systemic sclerosis
 
-#### Aufbau des Ordners:
+### Aufbau des Ordners:
 
-##### Expose: Inhaltliche Informationen zum Projekt
-##### Plots Ordner: Alle vom Code generierten Plots
-##### Code/Daten: Enthält die Code Files + CSV Datei 
+#### Expose: 
+Inhaltliche Informationen zum Projekt
+
+#### Plots Ordner: 
+Alle vom Code generierten Plots
+
+#### Code/Daten: 
+Enthält die Code Files + CSV Datei 
 
 
 ### How to Code ausführen: 
